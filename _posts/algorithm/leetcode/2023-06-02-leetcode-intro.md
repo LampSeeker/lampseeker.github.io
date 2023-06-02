@@ -3,7 +3,7 @@ title:  "leetcode 들어가기에 앞서"
 excerpt: "leetcode with C++ "
 
 categories:
-  - Cpp
+  - Leetcode
 tags:
   - [Blog, jekyll, Github, Git]
 
