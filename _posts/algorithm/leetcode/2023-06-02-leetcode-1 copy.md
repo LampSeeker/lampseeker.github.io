@@ -3,9 +3,9 @@ title:  "1. Two Sum"
 excerpt: "1. Two Sum"
 
 categories:
-  - Leetcode
+    - Leetcode
 tags:
-  - [Leetcode, Cpp]
+    - [Leetcode, Cpp]
 
 toc: true
 toc_sticky: true
