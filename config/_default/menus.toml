@@ -1,14 +1,14 @@
-[[main]]
+[[before]]
 name = "Posts"
 pageRef = "posts"
 weight = 10
 
-[[main]]
+[[before]]
 name = "Projects"
 pageRef = "projects"
 weight = 20
 
-[[main]]
+[[before]]
 name = "About"
 url = "/about-2f35b029aea683dd9283016b5bce45d7/"
 weight = 30

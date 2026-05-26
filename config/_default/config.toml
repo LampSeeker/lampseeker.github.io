@@ -1,9 +1,11 @@
 baseURL = "https://lampseeker.github.io/"
-theme = "blowfish"
-defaultContentLanguage = "en"
+theme = "hugo-book"
+defaultContentLanguage = "ko"
 enableRobotsTXT = true
 hasCJKLanguage = true
 summaryLength = 30
+disablePathToLower = true
+enableGitInfo = true
 
 [taxonomies]
 tag = "tags"
