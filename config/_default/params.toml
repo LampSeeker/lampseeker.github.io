@@ -19,8 +19,8 @@ showAppearanceSwitcher = true
 showScrollToTop = true
 
 [homepage]
-layout = "card"
-showRecent = true
+layout = "custom"
+showRecent = false
 showRecentItems = 20
 showMoreLink = true
 showMoreLinkDest = "posts"

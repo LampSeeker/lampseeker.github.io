@@ -1,0 +1,54 @@
+{{ $posts := where site.RegularPages "Section" "posts" }}
+{{ $projects := where site.RegularPages "Section" "projects" }}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <aside class="lg:col-span-3">
+      <div class="lg:sticky lg:top-24 rounded-2xl border border-neutral-200 dark:border-neutral-700 p-5">
+        <h2 class="text-lg font-semibold mb-4">Custom Bar</h2>
+
+        <div class="space-y-2 mb-6">
+          <a class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800" href="/posts/">
+            <span>Posts</span>
+            <span class="text-sm text-neutral-500">{{ len $posts }}</span>
+          </a>
+          <a class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800" href="/projects/">
+            <span>Projects</span>
+            <span class="text-sm text-neutral-500">{{ len $projects }}</span>
+          </a>
+        </div>
+
+        <h3 class="text-sm uppercase tracking-wide text-neutral-500 mb-3">Categories</h3>
+        <ul class="space-y-1">
+          {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+            <li>
+              <a class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-800" href="{{ (printf "/categories/%s/" $name) | relURL }}">
+                <span>{{ $name }}</span>
+                <span class="text-xs text-neutral-500">{{ len $taxonomy }}</span>
+              </a>
+            </li>
+          {{ else }}
+            <li class="px-3 py-2 text-sm text-neutral-500">No categories yet.</li>
+          {{ end }}
+        </ul>
+      </div>
+    </aside>
+
+    <main class="lg:col-span-9">
+      <section class="rounded-2xl border border-neutral-200 dark:border-neutral-700 p-6">
+        <h1 class="text-3xl font-bold">Latest from Notion</h1>
+        <p class="mt-2 text-neutral-600 dark:text-neutral-300">
+          Posts and projects synced from your Notion databases.
+        </p>
+      </section>
+
+      <section class="mt-8">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-extrabold">Recent Articles</h2>
+          <a href="/posts/" class="text-sm font-medium underline">View all posts</a>
+        </div>
+        {{ partial "recent-articles/cardview.html" . }}
+      </section>
+    </main>
+  </div>
+</div>
