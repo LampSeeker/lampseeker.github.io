@@ -9,6 +9,8 @@ import { getPageTitle, getCoverLink, getFileName } from "./helpers";
 import path from "path";
 import { getContentFile } from "./file";
 
+const NOTION_HUGO_RENDER_VERSION = "2026-05-26-book-toggle-media-v1";
+
 export async function renderPage(page: PageObjectResponse, notion: Client) {
   // load formatter config
   const n2m = new NotionToMarkdown({ notionClient: notion });
@@ -137,6 +139,7 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
   // save metadata
   frontMatter.NOTION_METADATA = page;
   frontMatter.MANAGED_BY_NOTION_HUGO = true;
+  frontMatter.NOTION_HUGO_RENDER_VERSION = NOTION_HUGO_RENDER_VERSION;
 
   return {
     title,
@@ -164,7 +167,11 @@ export async function savePage(
     getFileName(getPageTitle(page), page.id),
   );
   const post = getContentFile(postpath);
-  if (post && post.metadata.last_edited_time === page.last_edited_time) {
+  if (
+    post &&
+    post.metadata.last_edited_time === page.last_edited_time &&
+    post.renderVersion === NOTION_HUGO_RENDER_VERSION
+  ) {
     console.info(`[Info] The post ${postpath} is up-to-date, skipped.`);
     return;
   }

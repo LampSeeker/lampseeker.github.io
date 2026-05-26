@@ -247,10 +247,22 @@ export class NotionToMarkdown {
         return md.equation(block.equation.expression);
       }
 
-      case "video":
-        return md.video(block);
-      case "pdf":
-        return md.pdf(block);
+      case "video": {
+        const video = block.video;
+        const url =
+          video.type === "external"
+            ? video.external.url
+            : await downloadAsset(video.file.url, block.id);
+        return md.videoFromUrl(url);
+      }
+      case "pdf": {
+        const pdf = block.pdf;
+        const url =
+          pdf.type === "external"
+            ? pdf.external.url
+            : await downloadAsset(pdf.file.url, block.id, ".pdf");
+        return md.pdfFromUrl(url);
+      }
       case "file": {
         const file = block.file;
         const link =
@@ -483,8 +495,14 @@ export class NotionToMarkdown {
 
         return md.quote(quote_string.trim());
 
-      case "audio":
-        return md.audio(block);
+      case "audio": {
+        const audio = block.audio;
+        const url =
+          audio.type === "external"
+            ? audio.external.url
+            : await downloadAsset(audio.file.url, block.id);
+        return md.audioFromUrl(url);
+      }
       case "template":
       case "synced_block":
       case "child_page":

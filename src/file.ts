@@ -9,6 +9,7 @@ type ContentFile = {
   filepath: string;
   metadata: PageObjectResponse;
   managed: boolean;
+  renderVersion?: string;
 };
 
 function isMarkdownFile(filename: string): boolean {
@@ -27,6 +28,7 @@ export function getContentFile(filepath: string): ContentFile | undefined {
       filepath,
       metadata,
       managed: (filedata.attributes as any).MANAGED_BY_NOTION_HUGO ?? false,
+      renderVersion: (filedata.attributes as any).NOTION_HUGO_RENDER_VERSION,
     };
   } else {
     console.warn(
@@ -58,6 +60,7 @@ export function getAllContentFiles(dirPath: string): ContentFile[] {
         filepath,
         metadata,
         managed: (filedata.attributes as any).MANAGED_BY_NOTION_HUGO ?? false,
+        renderVersion: (filedata.attributes as any).NOTION_HUGO_RENDER_VERSION,
       });
     } else {
       console.warn(

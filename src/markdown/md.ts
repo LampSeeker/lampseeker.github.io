@@ -1,14 +1,11 @@
 import { markdownTable } from "markdown-table";
 import {
-  AudioBlockObjectResponse,
   EquationRichTextItemResponse,
   MentionRichTextItemResponse,
   PageIconResponse,
-  PdfBlockObjectResponse,
   RichTextItemResponse,
   RichTextItemResponseCommon,
   TextRichTextItemResponse,
-  VideoBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { getPageRelrefFromId } from "./notion";
 import { Client } from "@notionhq/client";
@@ -224,12 +221,7 @@ export async function richText(
   ).join("");
 }
 
-export const video = (block: VideoBlockObjectResponse) => {
-  const videoBlock = block.video;
-  if (videoBlock.type === "file") {
-    return htmlVideo(videoBlock.file.url);
-  }
-  const url = videoBlock.external.url;
+export const videoFromUrl = (url: string) => {
   if (url.startsWith("https://www.youtube.com/")) {
     /*
       YouTube video links that include embed or watch.
@@ -252,20 +244,10 @@ function htmlVideo(url: string) {
 </video>`;
 }
 
-export const pdf = (block: PdfBlockObjectResponse) => {
-  const pdfBlock = block.pdf;
-  const url =
-    pdfBlock.type === "file"
-      ? pdfBlock.file.url
-      : pdfBlock.external.url;
+export const pdfFromUrl = (url: string) => {
   return `<embed src="${url}" type="application/pdf" style="width: 100%;aspect-ratio: 2/3;height: auto;" />`;
 };
 
-export const audio = (block: AudioBlockObjectResponse) => {
-  const audioBlock = block.audio;
-  const url =
-    audioBlock.type === "file"
-      ? audioBlock.file.url
-      : audioBlock.external.url;
+export const audioFromUrl = (url: string) => {
   return `<audio controls src="${url}"></audio>`;
 };
