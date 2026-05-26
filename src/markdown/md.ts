@@ -3,13 +3,13 @@ import {
   AudioBlockObjectResponse,
   EquationRichTextItemResponse,
   MentionRichTextItemResponse,
+  PageIconResponse,
   PdfBlockObjectResponse,
   RichTextItemResponse,
   RichTextItemResponseCommon,
   TextRichTextItemResponse,
   VideoBlockObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import { CalloutIcon } from "./types";
 import { getPageRelrefFromId } from "./notion";
 import { Client } from "@notionhq/client";
 export const inlineCode = (text: string) => {
@@ -61,7 +61,7 @@ export const quote = (text: string) => {
   return `> ${text.replace(/\n/g, "  \n> ")}`;
 };
 
-export const callout = (text: string, icon?: CalloutIcon) => {
+export const callout = (text: string, icon?: PageIconResponse | null) => {
   let emoji: string | undefined;
   if (icon?.type === "emoji") {
     emoji = icon.emoji;
