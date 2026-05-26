@@ -195,7 +195,7 @@ export class NotionToMarkdown {
         if (image.type === "external") {
           return md.image(plainText(image.caption), image.external.url);
         }
-        return md.image(plainText(image.caption), blockIdToApiUrl(block.id));
+        return md.image(plainText(image.caption), image.file.url);
       }
       case "divider": {
         return md.divider();
@@ -212,7 +212,7 @@ export class NotionToMarkdown {
       case "file": {
         const file = block.file;
         const link =
-          file.type === "external" ? file.external.url : blockIdToApiUrl(block.id);
+          file.type === "external" ? file.external.url : file.file.url;
         return md.link(file.name, link);
       }
       case "bookmark": {

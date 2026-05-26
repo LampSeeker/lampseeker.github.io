@@ -229,7 +229,7 @@ export async function richText(
 export const video = (block: VideoBlockObjectResponse) => {
   const videoBlock = block.video;
   if (videoBlock.type === "file") {
-    return htmlVideo(blockIdToApiUrl(block.id));
+    return htmlVideo(videoBlock.file.url);
   }
   const url = videoBlock.external.url;
   if (url.startsWith("https://www.youtube.com/")) {
@@ -258,7 +258,7 @@ export const pdf = (block: PdfBlockObjectResponse) => {
   const pdfBlock = block.pdf;
   const url =
     pdfBlock.type === "file"
-      ? blockIdToApiUrl(block.id)
+      ? pdfBlock.file.url
       : pdfBlock.external.url;
   return `<embed src="${url}" type="application/pdf" style="width: 100%;aspect-ratio: 2/3;height: auto;" />`;
 };
@@ -267,7 +267,7 @@ export const audio = (block: AudioBlockObjectResponse) => {
   const audioBlock = block.audio;
   const url =
     audioBlock.type === "file"
-      ? blockIdToApiUrl(block.id)
+      ? audioBlock.file.url
       : audioBlock.external.url;
   return `<audio controls src="${url}"></audio>`;
 };

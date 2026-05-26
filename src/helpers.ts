@@ -30,7 +30,7 @@ export async function getCoverLink(
   }
   return page.cover.type === "external"
     ? page.cover.external.url
-    : pageIdToApiUrl(page_id);
+    : page.cover.file.url;
 }
 
 export function getFileName(title: string, page_id: string): string {
