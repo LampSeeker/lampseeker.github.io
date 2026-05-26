@@ -34,8 +34,16 @@ export async function getCoverLink(
 }
 
 export function getFileName(title: string, page_id: string): string {
+  const safeTitle = title
+    .trim()
+    // replace path separators and Windows-forbidden filename chars
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
   return (
-    title.replaceAll(" ", "-").replace(/--+/g, "-") +
+    (safeTitle || "untitled") +
     "-" +
     page_id.replaceAll("-", "") +
     ".md"

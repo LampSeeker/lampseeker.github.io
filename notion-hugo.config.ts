@@ -10,7 +10,7 @@ const userConfig: UserConfig = {
         target_folder: "posts",
       },
       {
-        database_id: "36c5b029-aea6-8015-b401-e4f78b3ec744",
+        database_id: "92b3f165-8e02-49ca-9c68-b7996c2dbaeb",
         target_folder: "projects",
       },
     ],
