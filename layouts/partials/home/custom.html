@@ -110,18 +110,17 @@
               {{ $scratch := newScratch }}
               {{ $scratch.Set "submap" (dict) }}
               {{ range $sectionPages }}
-                {{ $prefix := printf "%s/" $sectionName }}
-                {{ $dir := strings.TrimSuffix "/" .File.Dir }}
-                {{ $rest := strings.TrimPrefix $prefix $dir }}
-                {{ if ne $rest "" }}
-                  {{ $parts := split $rest "/" }}
-                  {{ $sub := index $parts 0 }}
-                  {{ $submap := $scratch.Get "submap" }}
-                  {{ $existing := index $submap $sub }}
-                  {{ if $existing }}
-                    {{ $scratch.SetInMap "submap" $sub ($existing | append .) }}
-                  {{ else }}
-                    {{ $scratch.SetInMap "submap" $sub (slice .) }}
+                {{ $pathParts := split .Path "/" }}
+                {{ if and (ge (len $pathParts) 3) (eq (index $pathParts 0) $sectionName) }}
+                  {{ $sub := index $pathParts 1 }}
+                  {{ if ne $sub "_index.md" }}
+                    {{ $submap := $scratch.Get "submap" }}
+                    {{ $existing := index $submap $sub }}
+                    {{ if $existing }}
+                      {{ $scratch.SetInMap "submap" $sub ($existing | append .) }}
+                    {{ else }}
+                      {{ $scratch.SetInMap "submap" $sub (slice .) }}
+                    {{ end }}
                   {{ end }}
                 {{ end }}
               {{ end }}
