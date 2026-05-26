@@ -1,0 +1,12 @@
+[main]
+  [[main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 10
+
+  [[main]]
+    identifier = "projects"
+    name = "Projects"
+    url = "/projects/"
+    weight = 20
