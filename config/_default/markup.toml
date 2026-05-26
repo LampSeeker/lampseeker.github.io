@@ -51,6 +51,6 @@ noHl = false
 style = 'monokai'
 tabWidth = 4
 [tableOfContents]
-endLevel = 3
-ordered = false
-startLevel = 2
+endLevel = 6
+ordered = true
+startLevel = 1
