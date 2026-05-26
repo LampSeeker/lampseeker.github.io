@@ -1,11 +1,5 @@
-﻿{{ $posts := where site.RegularPages "Section" "posts" }}
-{{ $projects := where site.RegularPages "Section" "projects" }}
-{{ $arkPages := slice }}
-{{ range $projects }}
-  {{ if strings.HasPrefix .File.Dir "projects/ark-raiders-rl/" }}
-    {{ $arkPages = $arkPages | append . }}
-  {{ end }}
-{{ end }}
+﻿{{ $mainSections := site.Params.mainSections | default (slice "posts") }}
+{{ $author := site.Params.author }}
 
 <style>
   .home-shell {
@@ -22,12 +16,32 @@
     background: rgba(2, 6, 23, 0.55);
     backdrop-filter: blur(6px);
   }
-  .home-hero {
+  .home-profile {
     border: 1px solid rgba(96, 165, 250, 0.3);
     border-radius: 16px;
-    padding: 1.25rem 1.3rem;
+    padding: 1.2rem 1.3rem;
     background: radial-gradient(circle at 20% 10%, rgba(59, 130, 246, 0.35), rgba(15, 23, 42, 0.92));
     color: #e2e8f0;
+    text-align: center;
+  }
+  .home-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 9999px;
+    margin: 0 auto 0.75rem;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.6rem;
+    background: rgba(255,255,255,0.08);
+  }
+  .home-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .home-tree {
     margin: 0;
@@ -84,35 +98,77 @@
       <h2 style="font-weight:700; margin-bottom:0.8rem;">카테고리 트리</h2>
 
       <ul class="home-tree">
-        <li>
-          <a class="home-tree-link" href="/posts/"><span>Posts</span><span class="home-tree-count">{{ len $posts }}</span></a>
-        </li>
-        <li>
-          <a class="home-tree-link" href="/projects/"><span>Projects</span><span class="home-tree-count">{{ len $projects }}</span></a>
-          <ul class="home-tree home-tree-sub">
+        {{ range $sectionName := $mainSections }}
+          {{ $sectionPages := where site.RegularPages "Section" $sectionName }}
+          {{ if gt (len $sectionPages) 0 }}
             <li>
-              <a class="home-tree-link" href="/projects/ark-raiders-rl/"><span>Ark Raiders RL</span><span class="home-tree-count">{{ len $arkPages }}</span></a>
+              <a class="home-tree-link" href="/{{ $sectionName }}/">
+                <span>{{ humanize $sectionName }}</span>
+                <span class="home-tree-count">{{ len $sectionPages }}</span>
+              </a>
+
+              {{ $scratch := newScratch }}
+              {{ $scratch.Set "submap" (dict) }}
+              {{ range $sectionPages }}
+                {{ $prefix := printf "%s/" $sectionName }}
+                {{ $dir := strings.TrimSuffix "/" .File.Dir }}
+                {{ $rest := strings.TrimPrefix $prefix $dir }}
+                {{ if ne $rest "" }}
+                  {{ $parts := split $rest "/" }}
+                  {{ $sub := index $parts 0 }}
+                  {{ $submap := $scratch.Get "submap" }}
+                  {{ $existing := index $submap $sub }}
+                  {{ if $existing }}
+                    {{ $scratch.SetInMap "submap" $sub ($existing | append .) }}
+                  {{ else }}
+                    {{ $scratch.SetInMap "submap" $sub (slice .) }}
+                  {{ end }}
+                {{ end }}
+              {{ end }}
+
+              {{ $submap := $scratch.Get "submap" }}
+              {{ if gt (len $submap) 0 }}
+                <ul class="home-tree home-tree-sub">
+                  {{ range sort (keys $submap) }}
+                    {{ $sub := . }}
+                    {{ $subPages := index $submap $sub }}
+                    <li>
+                      <a class="home-tree-link" href="/{{ $sectionName }}/{{ $sub }}/">
+                        <span>{{ humanize $sub }}</span>
+                        <span class="home-tree-count">{{ len $subPages }}</span>
+                      </a>
+                    </li>
+                  {{ end }}
+                </ul>
+              {{ end }}
             </li>
-            {{ range first 8 $arkPages }}
-              <li>
-                <a class="home-tree-link" href="{{ .RelPermalink }}"><span>{{ .Title }}</span></a>
-              </li>
-            {{ end }}
-          </ul>
-        </li>
+          {{ end }}
+        {{ end }}
       </ul>
     </div>
   </aside>
 
   <main class="home-main">
-    <section class="home-hero">
-      <h1 style="margin:0; font-size:2rem; line-height:1.2; font-weight:800;">LampSeeker Blog</h1>
-      <p style="margin:0.6rem 0 0; opacity:0.92;">Notion에서 동기화한 Posts/Projects를 섹션 단위로 정리한 공간입니다.</p>
+    <section class="home-profile">
+      <div class="home-avatar">
+        {{ with $author.image }}
+          <img src="{{ . | relURL }}" alt="author" />
+        {{ else }}
+          {{ substr ($author.name | default "L") 0 1 }}
+        {{ end }}
+      </div>
+      <h1 style="margin:0; font-size:2.2rem; line-height:1.2; font-weight:800;">{{ $author.name | default "LampSeeker" }}</h1>
+      {{ with $author.headline }}
+        <p style="margin:0.45rem 0 0; opacity:0.92; font-size:1.35rem;">{{ . }}</p>
+      {{ end }}
+      {{ with $author.bio }}
+        <p style="margin:0.95rem 0 0; opacity:0.92;">{{ . }}</p>
+      {{ end }}
     </section>
 
     <section style="margin-top:1rem;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.7rem;">
-        <h2 style="font-size:1.9rem; margin:0; font-weight:800;">Recent Articles</h2>
+        <h2 style="font-size:1.9rem; margin:0; font-weight:800;">최근 글</h2>
         <a href="/posts/" style="text-decoration:underline; font-size:0.92rem;">View all posts</a>
       </div>
       {{ partial "recent-articles/cardview.html" . }}
