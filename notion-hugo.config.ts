@@ -13,6 +13,10 @@ const userConfig: UserConfig = {
         database_id: "92b3f165-8e02-49ca-9c68-b7996c2dbaeb",
         target_folder: "projects",
       },
+      {
+        database_id: "3635b029-aea6-80e2-835d-cbe9bc8776c7",
+        target_folder: "projects/ark-raiders-rl",
+      },
     ],
     pages: [
       {
