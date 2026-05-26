@@ -128,9 +128,7 @@
               {{ $submap := $scratch.Get "submap" }}
               {{ if gt (len $submap) 0 }}
                 <ul class="home-tree home-tree-sub">
-                  {{ range sort (keys $submap) }}
-                    {{ $sub := . }}
-                    {{ $subPages := index $submap $sub }}
+                  {{ range $sub, $subPages := $submap }}
                     <li>
                       <a class="home-tree-link" href="/{{ $sectionName }}/{{ $sub }}/">
                         <span>{{ humanize $sub }}</span>
