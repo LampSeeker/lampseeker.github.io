@@ -71,14 +71,14 @@ MANAGED_BY_NOTION_HUGO: true
 
 - **핵심 목표**:
 
-	드론이 실내 공간을 자율적으로 탐색하고, 사람을 인식한 후 해당 위치를 지도에 마킹
+드론이 실내 공간을 자율적으로 탐색하고, 사람을 인식한 후 해당 위치를 지도에 마킹
 
 - **세부 기능 분해**:
-	- [ ] 드론 자율비행 및 장애물 회피
-	- [ ] 미탐색 구역 탐색 알고리즘 (예: 랜덤 or 그리드 기반)
-	- [ ] 사람/객체 인식 (Tag, Trigger, 시각 모델 등)
-	- [ ] 맵 생성 및 시각화
-	- [ ] 결과 로그 및 UI 표시
+- [ ] 드론 자율비행 및 장애물 회피
+- [ ] 미탐색 구역 탐색 알고리즘 (예: 랜덤 or 그리드 기반)
+- [ ] 사람/객체 인식 (Tag, Trigger, 시각 모델 등)
+- [ ] 맵 생성 및 시각화
+- [ ] 결과 로그 및 UI 표시
 
 ---
 
@@ -91,9 +91,9 @@ MANAGED_BY_NOTION_HUGO: true
 - [ ] Unreal Engine 5.3 이상 설치
 - [ ] 새로운 프로젝트 생성 (Blueprint + Third Person or Blank)
 - [ ] 플러그인 활성화
-	- `Learning Agents`
-	- `Learning Agents Training`
-	- `Learning Agents Inference`
+- `Learning Agents`
+- `Learning Agents Training`
+- `Learning Agents Inference`
 - [ ] 테스트용 실내 맵 구성 (예: 방/복도/문/테이블 등)
 
 ---
@@ -120,9 +120,9 @@ MANAGED_BY_NOTION_HUGO: true
 - [ ] SensorComponent: 현재 위치, 방향, 목표와의 거리 등 관찰
 - [ ] ActuatorComponent: 이동 방향 벡터 또는 회전 값
 - [ ] RewardComponent:
-	- 목표 도달 시 `+1`
-	- 충돌 시 `1`
-	- 탐색한 구역 증가 시 `+0.1`
+- 목표 도달 시 `+1`
+- 충돌 시 `1`
+- 탐색한 구역 증가 시 `+0.1`
 - [ ] `LearningAgentsTrainerActor`, `Policy` 컴포넌트 연결
 
 ---

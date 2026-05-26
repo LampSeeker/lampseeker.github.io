@@ -7,6 +7,7 @@ import { CustomTransformer, MdBlock, NotionToMarkdownOptions } from "./types";
 import * as md from "./md";
 import { getBlockChildren, getPageRelrefFromId } from "./notion";
 import { plainText } from "./md";
+import { downloadAsset } from "../helpers";
 
 /**
  * Converts a Notion page to Markdown.
@@ -44,6 +45,33 @@ export class NotionToMarkdown {
     this.unsupportedTransformer = transformer;
     return this;
   }
+
+  private isToggleableHeading(block: GetBlockResponse): boolean {
+    if (!("type" in block)) return false;
+    const heading = (block as any)[block.type];
+    return (
+      (block.type === "heading_1" ||
+        block.type === "heading_2" ||
+        block.type === "heading_3") &&
+      heading?.is_toggleable === true
+    );
+  }
+
+  private async toggleHeadingToMarkdown(
+    block: GetBlockResponse,
+    totalPage: number | null
+  ): Promise<string> {
+    const heading = (block as any)[(block as any).type];
+    const title = await this.richText(heading.rich_text);
+    const childBlocks = await getBlockChildren(
+      this.notionClient,
+      (block as any).id,
+      totalPage
+    );
+    const children = await this.blocksToMarkdown(childBlocks, totalPage);
+    return md.toggle(title, this.toMarkdownString(children).trim());
+  }
+
   /**
    * Converts Markdown Blocks to string
    * @param {MdBlock[]} mdBlocks - Array of markdown blocks
@@ -141,6 +169,19 @@ export class NotionToMarkdown {
       }
 
       if (
+        this.isToggleableHeading(block) &&
+        block.has_children
+      ) {
+        mdBlocks.push({
+          type: block.type,
+          parent: await this.toggleHeadingToMarkdown(block, totalPage),
+          children: [],
+          expiry_time,
+        });
+        continue;
+      }
+
+      if (
         block.has_children &&
         block.type !== "column_list" &&
         block.type !== "toggle" &&
@@ -195,7 +236,8 @@ export class NotionToMarkdown {
         if (image.type === "external") {
           return md.image(plainText(image.caption), image.external.url);
         }
-        return md.image(plainText(image.caption), image.file.url);
+        const url = await downloadAsset(image.file.url, block.id, ".png");
+        return md.image(plainText(image.caption), url);
       }
       case "divider": {
         return md.divider();
@@ -212,7 +254,9 @@ export class NotionToMarkdown {
       case "file": {
         const file = block.file;
         const link =
-          file.type === "external" ? file.external.url : file.file.url;
+          file.type === "external"
+            ? file.external.url
+            : await downloadAsset(file.file.url, block.id);
         return md.link(file.name, link);
       }
       case "bookmark": {

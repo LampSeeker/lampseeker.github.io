@@ -85,13 +85,8 @@ export const image = (alt: string, href: string) => {
 };
 
 export const addTabSpace = (text: string, n = 0) => {
-  const tab = "	";
-  for (let i = 0; i < n; i++) {
-    if (text.includes("\n")) {
-      const multiLineText = text.split(/(?<=\n)/).join(tab);
-      text = tab + multiLineText;
-    } else text = tab + text;
-  }
+  // Indenting every nested block with tabs makes Hugo render many lines as
+  // fenced code blocks. Keep markdown blocks unindented.
   return text;
 };
 
@@ -99,14 +94,17 @@ export const divider = () => {
   return "---";
 };
 
+function shortcodeParam(text: string): string {
+  return text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 export const toggle = (summary?: string, children?: string) => {
   if (!summary) return children || "";
-  return `<details>
-  <summary>${summary}</summary>
+  return `{{% details title="${shortcodeParam(summary)}" %}}
 
 ${children || ""}
 
-  </details>`;
+{{% /details %}}`;
 };
 
 export const table = (cells: string[][]) => {

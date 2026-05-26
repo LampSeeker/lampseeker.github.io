@@ -1,5 +1,7 @@
 import { Client, isFullPage } from "@notionhq/client";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import fs from "fs-extra";
+import path from "path";
 
 export function getPageTitle(pageOrProperty: any): string {
   const properties = pageOrProperty?.properties
@@ -30,7 +32,33 @@ export async function getCoverLink(
   }
   return page.cover.type === "external"
     ? page.cover.external.url
-    : page.cover.file.url;
+    : await downloadAsset(page.cover.file.url, page_id, ".png");
+}
+
+export async function downloadAsset(
+  url: string,
+  id: string,
+  fallbackExtension = "",
+): Promise<string> {
+  const pathname = new URL(url).pathname;
+  const extension = path.extname(pathname) || fallbackExtension;
+  const filename = `${id.replaceAll("-", "")}${extension}`;
+  const targetPath = path.join("static", "notion-assets", filename);
+  const publicPath = `/notion-assets/${filename}`;
+
+  if (fs.existsSync(targetPath)) {
+    return publicPath;
+  }
+
+  fs.ensureDirSync(path.dirname(targetPath));
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to download Notion asset: ${response.status} ${url}`);
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(targetPath, buffer);
+  return publicPath;
 }
 
 export function getFileName(title: string, page_id: string): string {
