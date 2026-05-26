@@ -34,6 +34,8 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
   const featuredImageLink = await getCoverLink(page.id, notion);
   if (featuredImageLink) {
     frontMatter.featuredImage = featuredImageLink;
+    // Blowfish reads .Params.featureimage (lowercase) for hero/card images.
+    frontMatter.featureimage = featuredImageLink;
   }
 
   // map page properties to front matter
