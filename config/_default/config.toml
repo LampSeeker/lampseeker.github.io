@@ -1,4 +1,15 @@
 baseURL = "https://lampseeker.github.io/"
-languageCode = "en-us"
-title = "My New Hugo Site"
-theme = "DoIt"
+theme = "blowfish"
+defaultContentLanguage = "en"
+enableRobotsTXT = true
+hasCJKLanguage = true
+summaryLength = 30
+
+[taxonomies]
+tag = "tags"
+category = "categories"
+author = "authors"
+series = "series"
+
+[outputs]
+home = ["HTML", "RSS", "JSON"]

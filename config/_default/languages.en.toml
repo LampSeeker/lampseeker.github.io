@@ -1,0 +1,16 @@
+languageCode = "en"
+languageName = "English"
+weight = 1
+title = "LampSeeker Blog"
+
+[params]
+displayName = "EN"
+isoCode = "en"
+rtl = false
+dateFormat = "2006-01-02"
+description = "Notion-synced notes and projects."
+
+[params.author]
+name = "LampSeeker"
+headline = "Notion + Hugo"
+bio = "Tech notes and project logs."

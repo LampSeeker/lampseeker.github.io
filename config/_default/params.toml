@@ -1,10 +1,45 @@
-version = "0.3.X"
-[page]
-[page.math]
-enable = true
-blockLeftDelimiter = "\\["
-blockRightDelimiter = "\\]"
-inlineLeftDelimiter = "\\("
-inlineRightDelimiter = "\\)"
-copyTex = true
-mhchem = true
+colorScheme = "blowfish"
+defaultAppearance = "light"
+autoSwitchAppearance = true
+
+enableSearch = true
+enableCodeCopy = true
+enableImageLazyLoading = true
+
+mainSections = ["posts", "projects"]
+
+[header]
+layout = "fixed"
+
+[footer]
+showMenu = true
+showCopyright = true
+showThemeAttribution = true
+showAppearanceSwitcher = true
+showScrollToTop = true
+
+[homepage]
+layout = "card"
+showRecent = true
+showRecentItems = 20
+showMoreLink = true
+showMoreLinkDest = "posts"
+cardView = true
+
+[article]
+showDate = true
+showAuthor = true
+showHero = true
+heroStyle = "background"
+showBreadcrumbs = true
+showTableOfContents = true
+showRelatedContent = true
+showTaxonomies = true
+
+[list]
+showHero = true
+showBreadcrumbs = true
+showSummary = true
+showTableOfContents = false
+groupByYear = false
+cardView = true
