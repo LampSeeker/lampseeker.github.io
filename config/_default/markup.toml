@@ -44,11 +44,11 @@ hl_Lines = ''
 hl_inline = false
 lineAnchors = ''
 lineNoStart = 1
-lineNos = true
-lineNumbersInTable = true
-noClasses = false
+lineNos = false
+lineNumbersInTable = false
+noClasses = true
 noHl = false
-style = 'monokai'
+style = 'github'
 tabWidth = 4
 [tableOfContents]
 endLevel = 6

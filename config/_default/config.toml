@@ -14,4 +14,4 @@ author = "authors"
 series = "series"
 
 [outputs]
-home = ["HTML", "RSS", "JSON"]
+home = ["HTML", "RSS"]
