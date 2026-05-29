@@ -17,6 +17,7 @@ export class NotionToMarkdown {
   private customTransformers: Record<string, CustomTransformer>;
   private richText: (textArray: RichTextItemResponse[]) => Promise<string>;
   private unsupportedTransformer: (type: string) => string = () => "";
+  private childDatabases: { database_id: string; title: string }[] = [];
   constructor(options: NotionToMarkdownOptions) {
     this.notionClient = options.notionClient;
     this.customTransformers = {};
@@ -46,30 +47,8 @@ export class NotionToMarkdown {
     return this;
   }
 
-  private isToggleableHeading(block: GetBlockResponse): boolean {
-    if (!("type" in block)) return false;
-    const heading = (block as any)[block.type];
-    return (
-      (block.type === "heading_1" ||
-        block.type === "heading_2" ||
-        block.type === "heading_3") &&
-      heading?.is_toggleable === true
-    );
-  }
-
-  private async toggleHeadingToMarkdown(
-    block: GetBlockResponse,
-    totalPage: number | null
-  ): Promise<string> {
-    const heading = (block as any)[(block as any).type];
-    const title = await this.richText(heading.rich_text);
-    const childBlocks = await getBlockChildren(
-      this.notionClient,
-      (block as any).id,
-      totalPage
-    );
-    const children = await this.blocksToMarkdown(childBlocks, totalPage);
-    return md.toggle(title, this.toMarkdownString(children).trim());
+  getChildDatabases(): { database_id: string; title: string }[] {
+    return [...this.childDatabases];
   }
 
   /**
@@ -81,29 +60,34 @@ export class NotionToMarkdown {
   toMarkdownString(mdBlocks: MdBlock[] = [], nestingLevel: number = 0): string {
     let mdString = "";
     mdBlocks.forEach((mdBlocks) => {
+      const isListType =
+        mdBlocks.type === "to_do" ||
+        mdBlocks.type === "bulleted_list_item" ||
+        mdBlocks.type === "numbered_list_item";
+
+      // Only list context should increase effective indentation.
+      // For non-list blocks inside lists, keep one-level indentation to avoid
+      // accidental indented-code parsing.
+      const effectiveIndentLevel =
+        nestingLevel > 0 ? (isListType ? nestingLevel : 1) : 0;
+
       // process parent blocks
       if (mdBlocks.parent) {
-        if (
-          mdBlocks.type !== "to_do" &&
-          mdBlocks.type !== "bulleted_list_item" &&
-          mdBlocks.type !== "numbered_list_item"
-        ) {
+        if (!isListType) {
           // add extra line breaks non list blocks
-          mdString += `\n${md.addTabSpace(mdBlocks.parent, nestingLevel)}\n\n`;
+          mdString += `\n${md.addTabSpace(mdBlocks.parent, effectiveIndentLevel)}\n\n`;
         } else {
-          mdString += `${md.addTabSpace(mdBlocks.parent, nestingLevel)}\n`;
+          mdString += `${md.addTabSpace(mdBlocks.parent, effectiveIndentLevel)}\n`;
         }
       }
 
       // process child blocks
       if (mdBlocks.children && mdBlocks.children.length > 0) {
+        const nextNestingLevel = isListType ? nestingLevel + 1 : nestingLevel;
         if (mdBlocks.type === "synced_block") {
           mdString += this.toMarkdownString(mdBlocks.children, nestingLevel);
         } else {
-          mdString += this.toMarkdownString(
-            mdBlocks.children,
-            nestingLevel + 1
-          );
+          mdString += this.toMarkdownString(mdBlocks.children, nextNestingLevel);
         }
       }
     });
@@ -169,19 +153,6 @@ export class NotionToMarkdown {
       }
 
       if (
-        this.isToggleableHeading(block) &&
-        block.has_children
-      ) {
-        mdBlocks.push({
-          type: block.type,
-          parent: await this.toggleHeadingToMarkdown(block, totalPage),
-          children: [],
-          expiry_time,
-        });
-        continue;
-      }
-
-      if (
         block.has_children &&
         block.type !== "column_list" &&
         block.type !== "toggle" &&
@@ -243,6 +214,10 @@ export class NotionToMarkdown {
         return md.divider();
       }
 
+      case "table_of_contents": {
+        return md.tableOfContents();
+      }
+
       case "equation": {
         return md.equation(block.equation.expression);
       }
@@ -277,7 +252,7 @@ export class NotionToMarkdown {
           bookmark.caption.length > 0
             ? await this.richText(bookmark.caption)
             : bookmark.url;
-        return md.link(caption, bookmark.url);
+        return md.linkCard(bookmark.url, caption, "bookmark");
       }
 
       case "link_to_page": {
@@ -300,11 +275,11 @@ export class NotionToMarkdown {
       case "embed": {
         const embed = block.embed;
         const title = embed.caption.length > 0 ? plainText(embed.caption) : embed.url;
-        return md.link(title, embed.url);
+        return md.linkCard(embed.url, title, "embed");
       }
       case "link_preview": {
         const linkPreview = block.link_preview;
-        return md.link(linkPreview.url, linkPreview.url);
+        return md.linkCard(linkPreview.url, linkPreview.url, "link_preview");
       }
       case "child_page":
       case "child_database":
@@ -319,6 +294,13 @@ export class NotionToMarkdown {
           if (type === "child_database") {
             blockContent = { url: block.id };
             title = block.child_database.title || "child_database";
+            if (!this.childDatabases.some((db) => db.database_id === block.id)) {
+              this.childDatabases.push({
+                database_id: block.id,
+                title,
+              });
+            }
+            return md.childDatabaseBlock(block.id, title);
           }
 
           if (blockContent) return md.link(title, blockContent.url);
@@ -513,7 +495,6 @@ export class NotionToMarkdown {
       case "link_to_page":
       case "breadcrumb":
       case "unsupported":
-      case "table_of_contents":
         return this.unsupportedTransformer(type);
     }
     return "";

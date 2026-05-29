@@ -1,0 +1,38 @@
+{{- $databaseID := .Get "database_id" -}}
+{{- $title := .Get "title" | default "Database" -}}
+{{- $pages := where site.RegularPages "Params.notion_parent_database_id" $databaseID -}}
+{{- $pages = $pages.ByDate.Reverse -}}
+
+<section class="notion-child-database">
+  <header class="notion-child-database-header">
+    <h2>{{ $title }}</h2>
+    <span>{{ len $pages }}</span>
+  </header>
+
+  {{- if gt (len $pages) 0 -}}
+    <div class="notion-child-database-grid">
+      {{- range $pages -}}
+        <article class="notion-child-card">
+          <a class="notion-child-card-link" href="{{ .RelPermalink }}">
+            <div class="notion-child-card-body">
+              <time class="notion-child-card-date">
+                {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
+              </time>
+              <h3 class="notion-child-card-title">{{ .Title }}</h3>
+              {{ with .Summary }}
+                <p class="notion-child-card-summary">{{ . | plainify | truncate 130 }}</p>
+              {{ end }}
+            </div>
+            {{ with (or .Params.featuredImage .Params.featureimage) }}
+              <div class="notion-child-card-thumb">
+                <img src="{{ . | relURL }}" alt="" loading="lazy" />
+              </div>
+            {{ end }}
+          </a>
+        </article>
+      {{- end -}}
+    </div>
+  {{- else -}}
+    <p class="notion-child-database-empty">No pages yet.</p>
+  {{- end -}}
+</section>

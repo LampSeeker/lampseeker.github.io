@@ -1,14 +1,4 @@
-[[before]]
-name = "Posts"
-pageRef = "posts"
-weight = 10
-
-[[before]]
-name = "Projects"
-pageRef = "projects"
-weight = 20
-
-[[before]]
+[[after]]
 name = "About"
 url = "/about-2f35b029aea683dd9283016b5bce45d7/"
-weight = 30
+weight = 10

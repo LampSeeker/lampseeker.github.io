@@ -1,0 +1,37 @@
+{{- $cover := or .Params.featuredImage .Params.featureimage -}}
+{{- with $cover -}}
+<div class="notion-page-cover">
+  <img src="{{ . | relURL }}" alt="" loading="eager" />
+</div>
+{{- end -}}
+
+<header class="notion-page-header{{ if not $cover }} notion-page-header-no-cover{{ end }}">
+  <h1>{{ .Title }}</h1>
+
+  <dl class="notion-page-properties">
+    {{- with .Date -}}
+    <div>
+      <dt>date</dt>
+      <dd>{{ partial "docs/date" (dict "Date" . "Format" $.Site.Params.BookDateFormat) }}</dd>
+    </div>
+    {{- end -}}
+
+    {{- with .Params.status -}}
+    <div>
+      <dt>status</dt>
+      <dd><span class="notion-page-pill notion-page-pill-green">{{ . }}</span></dd>
+    </div>
+    {{- end -}}
+
+    {{- with .Params.tags -}}
+    <div>
+      <dt>tags</dt>
+      <dd>
+        {{- range . -}}
+          <span class="notion-page-pill notion-page-pill-yellow">{{ . }}</span>
+        {{- end -}}
+      </dd>
+    </div>
+    {{- end -}}
+  </dl>
+</header>

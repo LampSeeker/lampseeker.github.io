@@ -1,0 +1,34 @@
+{
+  "source": {
+    "title": "Notion Colors: All Hex Codes For Text, Backgrounds & Icons",
+    "url": "https://matthiasfrank.de/en/notion-colors/",
+    "last_edited": "2026-05-19",
+    "captured": "2026-05-29"
+  },
+  "colors": {
+    "light": {
+      "default": { "text": "#373530", "background": "#FFFFFF", "icon": "#55534E" },
+      "gray": { "text": "#787774", "background": "#F1F1EF", "icon": "#A6A299" },
+      "brown": { "text": "#976D57", "background": "#F3EEEE", "icon": "#9F6B53" },
+      "orange": { "text": "#CC782F", "background": "#F8ECDF", "icon": "#D87620" },
+      "yellow": { "text": "#C29343", "background": "#FAF3DD", "icon": "#CB912F" },
+      "green": { "text": "#548164", "background": "#EEF3ED", "icon": "#448361" },
+      "blue": { "text": "#487CA5", "background": "#E9F3F7", "icon": "#337EA9" },
+      "purple": { "text": "#8A67AB", "background": "#F6F3F8", "icon": "#9065B0" },
+      "pink": { "text": "#B35488", "background": "#F9F2F5", "icon": "#C14C8A" },
+      "red": { "text": "#C4554D", "background": "#FAECEC", "icon": "#D44C47" }
+    },
+    "dark": {
+      "default": { "text": "#D4D4D4", "background": "#191919", "icon": "#D3D3D3" },
+      "gray": { "text": "#9B9B9B", "background": "#252525", "icon": "#7F7F7F" },
+      "brown": { "text": "#A27763", "background": "#2E2724", "icon": "#AA755F" },
+      "orange": { "text": "#CB7B37", "background": "#36291F", "icon": "#D9730D" },
+      "yellow": { "text": "#C19138", "background": "#372E20", "icon": "#CA8E1B" },
+      "green": { "text": "#4F9768", "background": "#242B26", "icon": "#2D9964" },
+      "blue": { "text": "#447ACB", "background": "#1F282D", "icon": "#2E7CD1" },
+      "purple": { "text": "#865DBB", "background": "#2A2430", "icon": "#8D5BC1" },
+      "pink": { "text": "#BA4A78", "background": "#2E2328", "icon": "#C94079" },
+      "red": { "text": "#BE524B", "background": "#332523", "icon": "#CD4945" }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{{ define "main" }}
+<article class="markdown book-article notion-page">
+  {{ partial "notion/page-header" . }}
+  <div class="notion-page-body markdown-inner">
+    {{- .Content -}}
+  </div>
+</article>
+{{ end }}

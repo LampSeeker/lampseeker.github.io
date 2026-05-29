@@ -1,13 +1,28 @@
-node_modules
-dist
-.env
-resources
-.hugo_build.lock
-public
+# Dependencies / build artifacts
 node_modules/
+dist/
+public/
+resources/
+.hugo_build.lock
+
+# Environment files
 .env
 .env.local
 .env.*.local
-public/
-resources/
+
+# OS / local temp files
 .DS_Store
+
+# Local Hugo server logs
+.hugo-server*.log
+.hugo-server*.err
+
+# Notion sync generated content/assets
+content/posts/**/*.md
+content/projects/**/*.md
+content/About-*.md
+static/notion-assets/**
+data/notion_root_databases.json
+!content/posts/_index.md
+!content/projects/_index.md
+!content/projects/ark-raiders-rl/_index.md

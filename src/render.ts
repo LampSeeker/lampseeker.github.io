@@ -2,6 +2,7 @@ import fs from "fs-extra";
 import { Client, isFullUser, iteratePaginatedAPI } from "@notionhq/client";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { NotionToMarkdown } from "./markdown/notion-to-md";
+import * as md from "./markdown/md";
 import YAML from "yaml";
 import { sh } from "./sh";
 import { DatabaseMount, PageMount } from "./config";
@@ -9,7 +10,7 @@ import { getPageTitle, getCoverLink, getFileName } from "./helpers";
 import path from "path";
 import { getContentFile } from "./file";
 
-const NOTION_HUGO_RENDER_VERSION = "2026-05-26-book-toggle-media-v1";
+const NOTION_HUGO_RENDER_VERSION = "2026-05-29-child-db-cards-v1";
 
 export async function renderPage(page: PageObjectResponse, notion: Client) {
   // load formatter config
@@ -19,13 +20,11 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
   });
   let frontInjectString = "";
   const mdblocks = await n2m.pageToMarkdown(page.id);
+  const childDatabases = n2m.getChildDatabases();
   const mdString = n2m.toMarkdownString(mdblocks);
   page.properties.Name;
   const title = getPageTitle(page);
-  const frontMatter: Record<
-    string,
-    string | string[] | number | boolean | PageObjectResponse
-  > = {
+  const frontMatter: Record<string, any> = {
     title,
     date: page.created_time,
     lastmod: page.last_edited_time,
@@ -38,6 +37,24 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
     frontMatter.featuredImage = featuredImageLink;
     // Blowfish reads .Params.featureimage (lowercase) for hero/card images.
     frontMatter.featureimage = featuredImageLink;
+  }
+
+  // Keep parent hierarchy as flat params to make Hugo filtering predictable.
+  if (page.parent?.type === "page_id") {
+    frontMatter.notion_parent_page_id = page.parent.page_id;
+  }
+  if (page.parent?.type === "database_id") {
+    frontMatter.notion_parent_database_id = page.parent.database_id;
+  }
+  if (page.parent?.type === "data_source_id") {
+    frontMatter.notion_parent_data_source_id = page.parent.data_source_id;
+    if ("database_id" in page.parent && typeof page.parent.database_id === "string") {
+      frontMatter.notion_parent_database_id = page.parent.database_id;
+    }
+  }
+
+  if (childDatabases.length > 0) {
+    frontMatter.notion_child_databases = childDatabases;
   }
 
   // map page properties to front matter
@@ -152,7 +169,13 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
       "\n---\n" +
       frontInjectString +
       "\n" +
-      mdString,
+      // For parent pages that contain nested databases, render only DB card blocks.
+      // This mirrors the Notion "hub page + inline DB" workflow requested by the user.
+      (page.parent?.type === "data_source_id" && childDatabases.length > 0
+        ? childDatabases
+            .map((db) => md.childDatabaseBlock(db.database_id, db.title))
+            .join("\n\n")
+        : mdString),
   };
 }
 

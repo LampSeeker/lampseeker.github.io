@@ -1,0 +1,50 @@
+<nav>
+{{ partial "docs/brand" . }}
+{{ partial "docs/search" . }}
+{{ if hugo.IsMultilingual }}
+  {{ partial "docs/languages" . }}
+{{ end }}
+
+{{ partial "docs/inject/menu-before" . }}
+
+{{ $rootData := hugo.Data.notion_root_databases }}
+{{ if and $rootData $rootData.roots }}
+  {{ $allPages := where site.RegularPages "Params.bookHidden" "ne" true }}
+  <ul>
+    {{ range $root := $rootData.roots }}
+      {{ $rootItems := where $allPages "Params.notion_parent_data_source_id" $root.data_source_id }}
+      {{ if gt (len $rootItems) 0 }}
+        {{ $toggleId := printf "db-root-%s" (md5 $root.database_id) }}
+        {{ $inSection := eq $.Page.Section $root.section }}
+        <li>
+          <input type="checkbox" id="{{ $toggleId }}" class="toggle" {{ if $inSection }}checked{{ end }} />
+          <label for="{{ $toggleId }}" class="flex">
+            <span class="{{ if $inSection }}active{{ end }}">{{ $root.title }}</span>
+            <img src="{{ partial "docs/icon" "chevron-right" }}" class="book-icon" alt="{{ partial "docs/text/i18n" "Expand" }}" />
+          </label>
+          <ul>
+            {{ range $rootItems.ByDate.Reverse }}
+              {{ $isCurrent := eq $.Page . }}
+              {{ $isParentOfCurrent := eq (index $.Page.Params "notion_parent_page_id") (index .Params.NOTION_METADATA "id") }}
+              <li>
+                <a href="{{ .RelPermalink }}" class="{{ if or $isCurrent $isParentOfCurrent }}active{{ end }}">
+                  {{ partial "docs/title" . }}
+                </a>
+              </li>
+            {{ end }}
+          </ul>
+        </li>
+      {{ end }}
+    {{ end }}
+  </ul>
+{{ end }}
+
+{{ partial "docs/menu-hugo" (dict "Page" .Page "Menu" .Site.Menus.after) }}
+{{ partial "docs/inject/menu-after" . }}
+</nav>
+
+<!-- Restore menu position as soon as possible to avoid flickering -->
+{{ $script := resources.Get "menu-reset.js" | resources.Minify }}
+{{ with $script.Content }}
+  <script>{{ . | safeJS }}</script>
+{{ end }}

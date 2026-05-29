@@ -13,6 +13,18 @@ export const inlineCode = (text: string) => {
   return `\`${text}\``;
 };
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function escapeAttribute(text: string): string {
+  return escapeHtml(text);
+}
+
 export const bold = (text: string) => {
   return `**${text}**`;
 };
@@ -30,7 +42,43 @@ export const underline = (text: string) => {
 };
 
 export const link = (text: string, href: string) => {
-  return `[${text}](${href})`;
+  const label = text.trim() || href;
+  return `[${label}](${href})`;
+};
+
+const htmlLink = (text: string, href: string) => {
+  return `<a href="${escapeAttribute(href)}">${text}</a>`;
+};
+
+const notionColorNames = new Set([
+  "default",
+  "gray",
+  "brown",
+  "orange",
+  "yellow",
+  "green",
+  "blue",
+  "purple",
+  "pink",
+  "red",
+]);
+
+export const notionColor = (text: string, color: string) => {
+  if (!color || color === "default") return text;
+
+  const backgroundSuffix = "_background";
+  const isBackground = color.endsWith(backgroundSuffix);
+  const colorName = isBackground
+    ? color.slice(0, -backgroundSuffix.length)
+    : color;
+
+  if (!notionColorNames.has(colorName)) return text;
+
+  const className = isBackground
+    ? `notion-color-${colorName}-background`
+    : `notion-color-${colorName}`;
+
+  return `<span class="${className}">${text}</span>`;
 };
 
 export const codeBlock = (text: string, language?: string) => {
@@ -82,18 +130,41 @@ export const image = (alt: string, href: string) => {
 };
 
 export const addTabSpace = (text: string, n = 0) => {
-  // Indenting every nested block with tabs makes Hugo render many lines as
-  // fenced code blocks. Keep markdown blocks unindented.
-  return text;
+  if (n <= 0) return text;
+
+  const indent = "  ".repeat(n);
+  return text
+    .split("\n")
+    .map((line) => (line.length > 0 ? `${indent}${line}` : line))
+    .join("\n");
 };
 
 export const divider = () => {
   return "---";
 };
 
+export const tableOfContents = () => {
+  return "";
+};
+
 function shortcodeParam(text: string): string {
   return text.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
+
+export const linkCard = (
+  url: string,
+  title?: string,
+  kind: "bookmark" | "embed" | "link_preview" = "bookmark",
+) => {
+  const cardTitle = title?.trim() || url;
+  return `{{< notion-link-card kind="${kind}" url="${shortcodeParam(url)}" title="${shortcodeParam(cardTitle)}" >}}`;
+};
+
+export const childDatabaseBlock = (databaseId: string, title?: string) => {
+  const safeId = shortcodeParam(databaseId);
+  const safeTitle = shortcodeParam((title || "Database").trim());
+  return `{{< notion-child-database database_id="${safeId}" title="${safeTitle}" >}}`;
+};
 
 export const toggle = (summary?: string, children?: string) => {
   if (!summary) return children || "";
@@ -124,24 +195,36 @@ export const equation = (expression: string) => {
 
 function textRichText(text: RichTextItemResponseCommon & TextRichTextItemResponse): string {
   const annotations = text.annotations;
-  let content = text.text.content;
-  if (annotations.bold) {
-    content = bold(content);
-  }
+  const hasHtmlAnnotation =
+    annotations.bold ||
+    annotations.italic ||
+    annotations.strikethrough ||
+    annotations.underline ||
+    annotations.code ||
+    annotations.color !== "default" ||
+    !!text.href;
+
+  let content = hasHtmlAnnotation ? escapeHtml(text.text.content) : text.text.content;
   if (annotations.code) {
-    content = inlineCode(content);
+    content = `<code>${content}</code>`;
+  }
+  if (annotations.bold) {
+    content = `<strong>${content}</strong>`;
   }
   if (annotations.italic) {
-    content = italic(content);
+    content = `<em>${content}</em>`;
   }
   if (annotations.strikethrough) {
-    content = strikethrough(content);
+    content = `<del>${content}</del>`;
   }
   if (annotations.underline) {
     content = underline(content);
   }
+  if (annotations.color) {
+    content = notionColor(content, annotations.color);
+  }
   if (text.href) {
-    content = link(content, text.href);
+    content = htmlLink(content, text.href);
   }
   return content;
 }

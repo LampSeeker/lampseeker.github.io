@@ -8,6 +8,14 @@ import { getFileName, getPageTitle } from "./helpers";
 
 dotenv.config();
 
+type MountedDatabaseMeta = {
+  database_id: string;
+  data_source_ids: string[];
+  title: string;
+  target_folder: string;
+  parent_page_id: string | null;
+};
+
 async function main() {
   if (process.env.NOTION_TOKEN === "")
     throw Error("The NOTION_TOKEN environment vairable is not set.");
@@ -19,6 +27,8 @@ async function main() {
   });
 
   const pages: string[] = [];
+  const mountedDatabases: MountedDatabaseMeta[] = [];
+  const pageIdsByDatabase = new Map<string, Set<string>>();
 
   console.info("[Info] Start processing mounted databases");
   // process mounted databases
@@ -29,6 +39,20 @@ async function main() {
       console.warn(`[Warn] Skipping mount for database ${mount.database_id} as it could not be fully retrieved.`);
       continue;
     }
+
+    const pageIds = new Set<string>();
+    const databaseTitle = (database.title || []).map((t) => t.plain_text).join("").trim();
+    const parentPageId =
+      database.parent?.type === "page_id" ? database.parent.page_id : null;
+
+    mountedDatabases.push({
+      database_id: mount.database_id,
+      data_source_ids: database.data_sources.map((ds) => ds.id),
+      title: databaseTitle || mount.target_folder,
+      target_folder: mount.target_folder,
+      parent_page_id: parentPageId,
+    });
+
     for (const data_source of database.data_sources) {
       console.info(`[Info] Processing data source: ${data_source.name} (${data_source.id})`);
       for await (const page of iteratePaginatedAPI(notion.dataSources.query, {
@@ -37,12 +61,36 @@ async function main() {
         if (!isFullPage(page) || page.object !== "page") {
           continue;
         }
+        pageIds.add(page.id);
         console.info(`[Info] Start processing page ${page.id}`);
         pages.push(getFileName(getPageTitle(page), page.id));
         await savePage(page, notion, mount);
       }
     }
+    pageIdsByDatabase.set(mount.database_id, pageIds);
   }
+
+  // Build root database list (exclude nested DB mounted under pages inside other mounted DBs).
+  const allMountedPageIds = new Set<string>();
+  for (const ids of pageIdsByDatabase.values()) {
+    for (const id of ids) allMountedPageIds.add(id);
+  }
+
+  const rootDatabases = mountedDatabases
+    .filter((db) => !db.parent_page_id || !allMountedPageIds.has(db.parent_page_id))
+    .map((db) => ({
+      title: db.title,
+      target_folder: db.target_folder,
+      section: db.target_folder.split("/")[0],
+      database_id: db.database_id,
+      data_source_id: db.data_source_ids[0] || "",
+    }));
+
+  fs.ensureDirSync("data");
+  fs.writeJsonSync("data/notion_root_databases.json", {
+    generated_at: new Date().toISOString(),
+    roots: rootDatabases,
+  }, { spaces: 2 });
 
   // process mounted pages
   for (const mount of config.mount.pages) {

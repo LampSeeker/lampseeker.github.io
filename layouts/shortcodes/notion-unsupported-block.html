@@ -1,1 +1,6 @@
-{{- warnf "Unsupported Notion block type: %s. This block will be ignored. Source %s" (.Get "type") .Position -}}
+{{- $type := .Get "type" -}}
+{{- if eq $type "table_of_contents" -}}
+  {{- /* Old generated table_of_contents placeholders are intentionally hidden. */ -}}
+{{- else -}}
+  {{- warnf "Unsupported Notion block type: %s. This block will be ignored. Source %s" $type .Position -}}
+{{- end -}}
