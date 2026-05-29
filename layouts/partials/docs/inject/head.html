@@ -1,0 +1,16 @@
+{{- if .IsPage -}}
+  {{- $raw := .RawContent | default "" -}}
+  {{- $needsMath := or
+    (in $raw "\\(")
+    (in $raw "\\[")
+    (in $raw "$$")
+    (in $raw "\\begin{")
+  -}}
+  {{- if and $needsMath (not (.Page.HasShortcode "katex")) -}}
+    <link rel="stylesheet" href="{{ "katex/katex.min.css" | relURL }}" />
+    <script defer src="{{ "katex/katex.min.js" | relURL }}"></script>
+    {{- with resources.Get "katex.json" | minify -}}
+      <script defer src="{{ "katex/auto-render.min.js" | relURL }}" onload="renderMathInElement(document.body, {{ .Content | safeJS }});"></script>
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
