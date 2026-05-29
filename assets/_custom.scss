@@ -681,6 +681,18 @@ body {
   border: 0;
 }
 
+.markdown pre.mermaid,
+.markdown .mermaid {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown .mermaid svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 .book-menu label > span {
   display: inline-block;
   max-width: 100%;
@@ -689,6 +701,44 @@ body {
 
 .book-menu label.flex {
   justify-content: space-between;
+}
+
+.notion-menu-divider {
+  height: 1px;
+  margin: 0.95rem 0 0.9rem;
+  background: #373530;
+}
+
+.notion-menu-recent-title {
+  margin: 0 0 0.5rem;
+  color: var(--notion-blue-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.notion-menu-recent-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notion-menu-recent-list li {
+  margin: 0 0 0.65rem;
+}
+
+.notion-menu-recent-list a {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--notion-default-text);
+  line-height: 1.28;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.notion-menu-recent-date {
+  margin-top: 0.1rem;
+  color: var(--notion-gray-text);
+  font-size: 0.72rem;
 }
 
 .notion-child-database {

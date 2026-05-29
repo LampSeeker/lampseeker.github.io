@@ -10,7 +10,7 @@ import { getPageTitle, getCoverLink, getFileName } from "./helpers";
 import path from "path";
 import { getContentFile } from "./file";
 
-const NOTION_HUGO_RENDER_VERSION = "2026-05-29-child-db-cards-v1";
+const NOTION_HUGO_RENDER_VERSION = "2026-05-29-shortcode-indent-fix-v1";
 
 export async function renderPage(page: PageObjectResponse, notion: Client) {
   // load formatter config
@@ -22,6 +22,12 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
   const mdblocks = await n2m.pageToMarkdown(page.id);
   const childDatabases = n2m.getChildDatabases();
   const mdString = n2m.toMarkdownString(mdblocks);
+  // Keep Hugo shortcodes at column 0. Indented shortcode lines inside list
+  // contexts can produce broken HTML tree after Goldmark parsing.
+  const normalizedMdString = mdString.replace(
+    /^[ \t]+(\{\{[%<][\s\S]*?[>%]\}\})$/gm,
+    "$1",
+  );
   page.properties.Name;
   const title = getPageTitle(page);
   const frontMatter: Record<string, any> = {
@@ -175,7 +181,7 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
         ? childDatabases
             .map((db) => md.childDatabaseBlock(db.database_id, db.title))
             .join("\n\n")
-        : mdString),
+        : normalizedMdString),
   };
 }
 

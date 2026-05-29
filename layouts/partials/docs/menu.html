@@ -39,6 +39,24 @@
   </ul>
 {{ end }}
 
+{{ $recentPages := first 6 ((where site.RegularPages "Params.bookHidden" "ne" true).ByDate.Reverse) }}
+{{ if gt (len $recentPages) 0 }}
+  <div class="notion-menu-divider"></div>
+  <div class="notion-menu-recent">
+    <div class="notion-menu-recent-title">최신글</div>
+    <ul class="notion-menu-recent-list">
+      {{ range $recentPages }}
+        <li>
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <div class="notion-menu-recent-date">
+            {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
+          </div>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+{{ end }}
+
 {{ partial "docs/menu-hugo" (dict "Page" .Page "Menu" .Site.Menus.after) }}
 {{ partial "docs/inject/menu-after" . }}
 </nav>

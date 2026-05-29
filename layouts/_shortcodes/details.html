@@ -4,10 +4,12 @@
   "merge" (dict "open" $open)
   "delete" (cond $open (slice) (slice "open"))
 ) -}}
+
 <details {{ partial "docs/html-attrs" $attributes | safeHTMLAttr }}>
 {{- $summary := cond .IsNamedParams (.Get "title") (.Get 0) -}}
-<summary>{{ $summary | .Page.RenderString }}</summary>
-{{- /* De-indent inner markdown to avoid accidental code blocks. */ -}}
+<summary>{{ $summary }}</summary>
 <div class="markdown-inner">
-{{ .InnerDeindent | safeHTML }}
+{{ .Inner | safeHTML -}}
 </div></details>
+
+{{- /* remove whitespaces */ -}}
