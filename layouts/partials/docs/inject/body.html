@@ -7,6 +7,15 @@
 
 <header class="book-top-strip">
   <div class="book-top-strip-inner">
+    {{- $topTitle := .Title -}}
+    {{- if .IsHome -}}
+      {{- with hugo.Data.notion_root_page.title -}}
+        {{- $topTitle = . -}}
+      {{- end -}}
+    {{- end -}}
+    <div class="book-top-page-name" title="{{ $topTitle }}">
+      <span>{{ $topTitle }}</span>
+    </div>
     <nav class="book-top-links" aria-label="Primary">
       <a href="{{ $aboutURL }}">About</a>
       <a href="/posts/">Posts</a>

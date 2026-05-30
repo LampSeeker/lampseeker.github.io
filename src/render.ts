@@ -12,7 +12,11 @@ import { getContentFile } from "./file";
 
 const NOTION_HUGO_RENDER_VERSION = "2026-05-29-shortcode-indent-fix-v1";
 
-export async function renderPage(page: PageObjectResponse, notion: Client) {
+export async function renderPage(
+  page: PageObjectResponse,
+  notion: Client,
+  mount?: DatabaseMount | PageMount,
+) {
   // load formatter config
   const n2m = new NotionToMarkdown({ notionClient: notion });
   n2m.setUnsupportedTransformer((type) => {
@@ -36,6 +40,10 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
     lastmod: page.last_edited_time,
     draft: false,
   };
+
+  if (mount && "page_id" in mount && typeof mount.url === "string" && mount.url.length > 0) {
+    frontMatter.url = mount.url;
+  }
 
   // set featuredImage
   const featuredImageLink = await getCoverLink(page.id, notion);
@@ -202,7 +210,7 @@ export async function savePage(
   // otherwise update the page
   console.info(`[Info] Updating ${postpath}`);
 
-  const { title, pageString } = await renderPage(page, notion);
+  const { title, pageString } = await renderPage(page, notion, mount);
   const fileName = getFileName(title, page.id);
   await sh(`hugo new "${mount.target_folder}/${fileName}"`, false);
   fs.writeFileSync(`content/${mount.target_folder}/${fileName}`, pageString);

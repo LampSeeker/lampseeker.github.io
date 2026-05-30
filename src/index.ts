@@ -16,6 +16,11 @@ type MountedDatabaseMeta = {
   parent_page_id: string | null;
 };
 
+function bumpCount(counter: Map<string, number>, id: string | null) {
+  if (!id) return;
+  counter.set(id, (counter.get(id) || 0) + 1);
+}
+
 async function main() {
   if (process.env.NOTION_TOKEN === "")
     throw Error("The NOTION_TOKEN environment vairable is not set.");
@@ -29,6 +34,7 @@ async function main() {
   const pages: string[] = [];
   const mountedDatabases: MountedDatabaseMeta[] = [];
   const pageIdsByDatabase = new Map<string, Set<string>>();
+  const rootPageParentCounts = new Map<string, number>();
 
   console.info("[Info] Start processing mounted databases");
   // process mounted databases
@@ -52,6 +58,7 @@ async function main() {
       target_folder: mount.target_folder,
       parent_page_id: parentPageId,
     });
+    bumpCount(rootPageParentCounts, parentPageId);
 
     for (const data_source of database.data_sources) {
       console.info(`[Info] Processing data source: ${data_source.name} (${data_source.id})`);
@@ -98,9 +105,39 @@ async function main() {
     if (!isFullPage(page)) {
       continue;
     }
+    const pageParentId = page.parent?.type === "page_id" ? page.parent.page_id : null;
+    bumpCount(rootPageParentCounts, pageParentId);
     pages.push(getFileName(getPageTitle(page), page.id));
     await savePage(page, notion, mount);
   }
+
+  // Infer and persist the Notion root page title (e.g. "Be your own lamp")
+  // so templates can show it without hardcoding.
+  let rootPageId: string | null = null;
+  if (rootPageParentCounts.size > 0) {
+    rootPageId = [...rootPageParentCounts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  }
+
+  let rootPageTitle: string | null = null;
+  let rootPageUrl: string | null = null;
+  if (rootPageId) {
+    const rootPage = await notion.pages.retrieve({ page_id: rootPageId });
+    if (isFullPage(rootPage)) {
+      rootPageTitle = getPageTitle(rootPage);
+      rootPageUrl = rootPage.url ?? null;
+    }
+  }
+
+  fs.writeJsonSync(
+    "data/notion_root_page.json",
+    {
+      generated_at: new Date().toISOString(),
+      page_id: rootPageId,
+      title: rootPageTitle,
+      url: rootPageUrl,
+    },
+    { spaces: 2 },
+  );
 
   // remove posts that exist locally but not in Notion Database
   const contentFiles = getAllContentFiles("content");

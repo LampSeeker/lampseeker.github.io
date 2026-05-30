@@ -10,6 +10,7 @@ import userDefinedConfig from "../notion-hugo.config";
 export type PageMount = {
   page_id: string;
   target_folder: string;
+  url?: string;
 };
 
 export type DatabaseMount = {
