@@ -20,7 +20,7 @@ const userConfig: UserConfig = {
     ],
     pages: [
       {
-        page_id: "cbabcf56-2b60-493f-8908-f5b510ffef89",
+        page_id: "3705b029-aea6-8008-8344-f163a072acbc",
         target_folder: ".",
         url: "/about/",
       },
