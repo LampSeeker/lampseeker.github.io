@@ -1,18 +1,26 @@
 {{ define "main" }}
   {{ $author := site.Params.author }}
+  {{ $root := hugo.Data.notion_root_page }}
+  {{ $heroImage := (or $root.hero_image $author.image) }}
+  {{ $heroIntro := (or $root.intro $author.bio) }}
   {{ $recentPosts := first 9 (where site.RegularPages "Section" "posts").ByDate.Reverse }}
 
   <section class="home-hero">
-    <div class="home-hero-avatar">
-      {{ with $author.image }}
-        <img src="{{ . | relURL }}" alt="{{ $author.name | default "Author" }}" />
-      {{ else }}
-        <span>{{ substr ($author.name | default "L") 0 1 }}</span>
-      {{ end }}
-    </div>
-    <h1 class="home-hero-name">{{ $author.name | default "LampSeeker" }}</h1>
-    {{ with $author.headline }}<p class="home-hero-headline">{{ . }}</p>{{ end }}
-    {{ with $author.bio }}<p class="home-hero-bio">{{ . }}</p>{{ end }}
+    {{ with $heroImage }}
+      {{ $heroSrc := . }}
+      <div class="home-hero-cover">
+        <img src="{{ if or (hasPrefix $heroSrc "http://") (hasPrefix $heroSrc "https://") }}{{ $heroSrc }}{{ else }}{{ $heroSrc | relURL }}{{ end }}" alt="{{ $root.title | default ($author.name | default "Hero image") }}" />
+      </div>
+    {{ else }}
+      <div class="home-hero-avatar">
+        {{ with $author.image }}
+          <img src="{{ . | relURL }}" alt="{{ $author.name | default "Author" }}" />
+        {{ else }}
+          <span>{{ substr ($author.name | default "L") 0 1 }}</span>
+        {{ end }}
+      </div>
+    {{ end }}
+    {{ with $heroIntro }}<p class="home-hero-bio">{{ . }}</p>{{ end }}
   </section>
 
   <section class="home-recent">

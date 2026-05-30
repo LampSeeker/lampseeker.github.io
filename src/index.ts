@@ -4,7 +4,8 @@ import fs from "fs-extra";
 import { savePage } from "./render";
 import { loadConfig } from "./config";
 import { getAllContentFiles } from "./file";
-import { getFileName, getPageTitle } from "./helpers";
+import { downloadAsset, getCoverLink, getFileName, getPageTitle } from "./helpers";
+import path from "path";
 
 dotenv.config();
 
@@ -19,6 +20,92 @@ type MountedDatabaseMeta = {
 function bumpCount(counter: Map<string, number>, id: string | null) {
   if (!id) return;
   counter.set(id, (counter.get(id) || 0) + 1);
+}
+
+function pickPlainTextFromBlock(block: any): string {
+  const blockValue = block?.[block?.type];
+  const richText = blockValue?.rich_text;
+  if (!Array.isArray(richText)) return "";
+  const text = richText
+    .map((item: any) => (typeof item?.plain_text === "string" ? item.plain_text : ""))
+    .join("")
+    .trim();
+  return text;
+}
+
+function fileExtensionFromUrl(url: string, fallback = ".png"): string {
+  try {
+    const pathname = new URL(url).pathname;
+    return path.extname(pathname) || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function resolveBlockImage(block: any): Promise<string | null> {
+  if (block?.type !== "image" || !block.image) return null;
+  if (block.image.type === "external") {
+    return block.image.external?.url ?? null;
+  }
+  if (block.image.type === "file") {
+    const fileUrl: string | undefined = block.image.file?.url;
+    if (!fileUrl) return null;
+    return downloadAsset(
+      fileUrl,
+      block.id,
+      fileExtensionFromUrl(fileUrl, ".png"),
+    );
+  }
+  return null;
+}
+
+async function collectRootPageSignals(notion: Client, rootPageId: string): Promise<{
+  heroImage: string | null;
+  intro: string | null;
+}> {
+  let heroImage: string | null = null;
+  let intro: string | null = null;
+  const queue: string[] = [rootPageId];
+  const visited = new Set<string>();
+
+  while (queue.length > 0 && (!heroImage || !intro)) {
+    const blockId = queue.shift();
+    if (!blockId || visited.has(blockId)) continue;
+    visited.add(blockId);
+
+    let startCursor: string | undefined = undefined;
+    do {
+      const response = await notion.blocks.children.list({
+        block_id: blockId,
+        start_cursor: startCursor,
+        page_size: 100,
+      });
+
+      for (const block of response.results as any[]) {
+        if (!intro) {
+          const text = pickPlainTextFromBlock(block).replace(/\s+/g, " ").trim();
+          if (text.length > 0) {
+            intro = text;
+          }
+        }
+
+        if (!heroImage && block.type === "image") {
+          heroImage = await resolveBlockImage(block);
+        }
+
+        if (block.has_children) {
+          queue.push(block.id);
+        }
+
+        if (heroImage && intro) break;
+      }
+
+      if (heroImage && intro) break;
+      startCursor = response.has_more ? response.next_cursor ?? undefined : undefined;
+    } while (startCursor);
+  }
+
+  return { heroImage, intro };
 }
 
 async function main() {
@@ -120,11 +207,17 @@ async function main() {
 
   let rootPageTitle: string | null = null;
   let rootPageUrl: string | null = null;
+  let rootPageHeroImage: string | null = null;
+  let rootPageIntro: string | null = null;
   if (rootPageId) {
     const rootPage = await notion.pages.retrieve({ page_id: rootPageId });
     if (isFullPage(rootPage)) {
       rootPageTitle = getPageTitle(rootPage);
       rootPageUrl = rootPage.url ?? null;
+      const signals = await collectRootPageSignals(notion, rootPageId);
+      rootPageIntro = signals.intro;
+      rootPageHeroImage =
+        signals.heroImage || (await getCoverLink(rootPageId, notion));
     }
   }
 
@@ -135,6 +228,8 @@ async function main() {
       page_id: rootPageId,
       title: rootPageTitle,
       url: rootPageUrl,
+      hero_image: rootPageHeroImage,
+      intro: rootPageIntro,
     },
     { spaces: 2 },
   );
