@@ -34,6 +34,9 @@ $notion-red-icon: #cd4945;
   --body-background: #191919;
   --body-background-tint: none;
   --body-font-color: #d4d4d4;
+  --notion-app-main-bg: #191919;
+  --notion-app-top-bg: #191919;
+  --notion-app-sidebar-bg: #202020;
 
   --color-link: #447acb;
   --color-visited-link: #865dbb;
@@ -91,6 +94,9 @@ $notion-red-icon: #cd4945;
   --body-background: #ffffff;
   --body-background-tint: none;
   --body-font-color: #373530;
+  --notion-app-main-bg: #ffffff;
+  --notion-app-top-bg: #ffffff;
+  --notion-app-sidebar-bg: #f7f7f5;
 
   --color-link: #487ca5;
   --color-visited-link: #8a67ab;
@@ -164,6 +170,26 @@ body {
     "Apple SD Gothic Neo",
     "Malgun Gothic",
     sans-serif;
+  background: var(--notion-app-main-bg);
+}
+
+main.container,
+.book-page,
+.book-toc {
+  background: var(--notion-app-main-bg);
+}
+
+.book-menu,
+.book-menu .book-menu-content {
+  background: var(--notion-app-sidebar-bg);
+}
+
+.book-menu {
+  border-inline-end: 1px solid var(--gray-200);
+}
+
+.book-toc {
+  border-inline-start: 1px solid var(--gray-200);
 }
 
 :root {
@@ -175,14 +201,15 @@ body {
   inset: 0 0 auto 0;
   z-index: 60;
   height: var(--book-top-strip-height);
-  background: var(--notion-default-bg);
+  background: var(--notion-app-top-bg);
   border-bottom: 1px solid var(--gray-200);
 }
 
 .book-top-strip-inner {
-  max-width: 90rem;
+  width: 100%;
+  max-width: none;
   height: 100%;
-  margin: 0 auto;
+  margin: 0;
   padding: 0 1rem;
   display: flex;
   align-items: center;
@@ -283,6 +310,9 @@ body {
 }
 
 main.container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
   padding-top: calc(var(--book-top-strip-height) + 0.45rem);
 }
 
