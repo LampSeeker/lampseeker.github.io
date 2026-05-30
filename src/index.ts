@@ -113,8 +113,8 @@ async function main() {
 
   // Infer and persist the Notion root page title (e.g. "Be your own lamp")
   // so templates can show it without hardcoding.
-  let rootPageId: string | null = null;
-  if (rootPageParentCounts.size > 0) {
+  let rootPageId: string | null = config.root_page_id ?? null;
+  if (!rootPageId && rootPageParentCounts.size > 0) {
     rootPageId = [...rootPageParentCounts.entries()].sort((a, b) => b[1] - a[1])[0][0];
   }
 

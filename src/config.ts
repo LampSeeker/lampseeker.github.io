@@ -25,6 +25,7 @@ export type Mount = {
 
 export type Config = {
   mount: Mount;
+  root_page_id?: string;
 };
 
 export async function loadConfig(): Promise<Config> {
@@ -34,6 +35,7 @@ export async function loadConfig(): Promise<Config> {
       databases: [],
       pages: [],
     },
+    root_page_id: userConfig.root_page_id,
   };
   global.blockIdToApiUrl = function (block_id: string) {
     return `${userConfig.base_url}/api?block_id=${block_id}`;
@@ -92,6 +94,7 @@ export type UserMount = {
 export type UserConfig = {
   mount: UserMount;
   base_url: string;
+  root_page_id?: string;
 };
 
 export function defineConfig(config: UserConfig) {

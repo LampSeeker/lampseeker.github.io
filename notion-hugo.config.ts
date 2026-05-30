@@ -2,6 +2,7 @@ import { UserConfig } from "./src/config"
 
 const userConfig: UserConfig = {
   base_url: "https://lampseeker.github.io",
+  root_page_id: "ec55b029-aea6-837e-811d-017848583280",
   mount: {
     manual: true,
     databases: [

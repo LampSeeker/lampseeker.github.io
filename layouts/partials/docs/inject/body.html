@@ -7,11 +7,9 @@
 
 <header class="book-top-strip">
   <div class="book-top-strip-inner">
-    {{- $topTitle := .Title -}}
-    {{- if .IsHome -}}
-      {{- with hugo.Data.notion_root_page.title -}}
-        {{- $topTitle = . -}}
-      {{- end -}}
+    {{- $topTitle := .Site.Title -}}
+    {{- with hugo.Data.notion_root_page.title -}}
+      {{- $topTitle = . -}}
     {{- end -}}
     <div class="book-top-page-name" title="{{ $topTitle }}">
       <span>{{ $topTitle }}</span>
