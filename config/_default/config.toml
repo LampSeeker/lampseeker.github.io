@@ -1,4 +1,4 @@
-baseURL = "https://lampseeker.github.io/"
+baseURL = "https://lampseeker-github-io.pages.dev/"
 theme = "hugo-book"
 defaultContentLanguage = "ko"
 enableRobotsTXT = true
