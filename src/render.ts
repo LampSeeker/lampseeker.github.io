@@ -146,17 +146,12 @@ export async function renderPage(page: PageObjectResponse, notion: Client) {
   }
 
   // set default author
-  if (frontMatter.authors == null) {
-    try {
-      const response = await notion.users.retrieve({
-        user_id: page.last_edited_by.id,
-      });
-      if (response.name) {
-        frontMatter.authors = [response.name];
-      }
-    } catch (error) {
-      console.warn(`[Warning] Failed to get author name for ${page.id}`);
-    }
+  if (
+    frontMatter.authors == null &&
+    isFullUser(page.last_edited_by) &&
+    page.last_edited_by.name
+  ) {
+    frontMatter.authors = [page.last_edited_by.name];
   }
 
   // save metadata

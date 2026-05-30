@@ -8,7 +8,7 @@ import {
   TextRichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import { getPageRelrefFromId } from "./notion";
-import { Client } from "@notionhq/client";
+import { Client, isFullUser } from "@notionhq/client";
 export const inlineCode = (text: string) => {
   return `\`${text}\``;
 };
@@ -251,16 +251,10 @@ async function mentionRichText(
       return link(title, relref);
     }
     case "user": {
-      const userId = mention.user.id;
-      try {
-        const user = await notion.users.retrieve({ user_id: userId });
-        if (user.name) {
-          return `@${user.name}`;
-        }
-      } catch (error) {
-        console.warn(`Failed to retrieve user with id ${userId}`);
+      if (isFullUser(mention.user) && mention.user.name) {
+        return `@${mention.user.name}`;
       }
-      return "";
+      return (text as { plain_text?: string }).plain_text ?? "";
     }
     case "date": {
       const date = mention.date;
