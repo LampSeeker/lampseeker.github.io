@@ -1,5 +1,6 @@
 {{ define "main" }}
-<article class="markdown book-article notion-page">
+{{- $pageClass := cond (eq .RelPermalink "/about/") " notion-page-about" "" -}}
+<article class="markdown book-article notion-page{{ $pageClass }}">
   {{ partial "notion/page-header" . }}
   <div class="notion-page-body markdown-inner">
     {{- .Content -}}

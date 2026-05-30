@@ -94,6 +94,17 @@ export class NotionToMarkdown {
     return mdString;
   }
 
+  private toHugoColumnsMarkdown(columns: string[]): string {
+    const columnItems = columns
+      .map((column) => column.trim())
+      .filter((column) => column.length > 0)
+      .map((column) => `-\n${md.addTabSpace(column, 1)}`);
+
+    if (columnItems.length === 0) return "";
+
+    return `{{% columns %}}\n${columnItems.join("\n")}\n{{% /columns %}}`;
+  }
+
   /**
    * Retrieves Notion Blocks based on ID and converts them to Markdown Blocks
    * @param {string} id - notion page id (not database id)
@@ -351,13 +362,12 @@ export class NotionToMarkdown {
           100
         );
 
-        let column_list_promise = column_list_children.map(
-          async (column) => await this.blockToMarkdown(column)
+        const columnListPromise = column_list_children.map(async (column) =>
+          await this.blockToMarkdown(column)
         );
 
-        let column_list: string[] = await Promise.all(column_list_promise);
-
-        return column_list.join("\n\n");
+        const columnList: string[] = await Promise.all(columnListPromise);
+        return this.toHugoColumnsMarkdown(columnList);
       }
 
       case "column": {
@@ -370,12 +380,8 @@ export class NotionToMarkdown {
           100
         );
 
-        const column_children_promise = column_children.map(
-          async (column_child) => await this.blockToMarkdown(column_child)
-        );
-
-        let column: string[] = await Promise.all(column_children_promise);
-        return column.join("\n\n");
+        const columnChildren = await this.blocksToMarkdown(column_children);
+        return this.toMarkdownString(columnChildren).trim();
       }
 
       case "toggle": {
@@ -414,6 +420,10 @@ export class NotionToMarkdown {
         return md.heading2(await this.richText(block.heading_2.rich_text));
       case "heading_3":
         return md.heading3(await this.richText(block.heading_3.rich_text));
+      case "heading_4": {
+        const heading4RichText = (block as any).heading_4?.rich_text ?? [];
+        return md.heading4(await this.richText(heading4RichText));
+      }
       case "bulleted_list_item":
         return md.bullet(
           await this.richText(block.bulleted_list_item.rich_text)

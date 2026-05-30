@@ -1,4 +1,5 @@
 import { Client, isFullBlock, iteratePaginatedAPI } from "@notionhq/client";
+import type { QueryDataSourceParameters } from "@notionhq/client/build/src/api-endpoints";
 
 declare global {
   var blockIdToApiUrl: (block_id: string) => string;
@@ -16,7 +17,7 @@ export type PageMount = {
 export type DatabaseMount = {
   database_id: string;
   target_folder: string;
-  query_filter?: Record<string, any>;
+  query_filter?: QueryDataSourceParameters["filter"];
 };
 
 export type Mount = {
