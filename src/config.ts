@@ -16,6 +16,7 @@ export type PageMount = {
 export type DatabaseMount = {
   database_id: string;
   target_folder: string;
+  query_filter?: Record<string, any>;
 };
 
 export type Mount = {

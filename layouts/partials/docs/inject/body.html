@@ -61,6 +61,7 @@
     const storageKey = "lampseeker-theme";
     const root = document.documentElement;
     const themeButton = document.getElementById("book-theme-toggle");
+    const sideThemeButtons = Array.from(document.querySelectorAll(".notion-side-theme-toggle"));
     const searchOpenButton = document.getElementById("book-top-search-open");
     const searchCloseButton = document.getElementById("book-top-search-close");
     const searchOverlay = document.getElementById("book-search-overlay");
@@ -97,6 +98,10 @@
       }
       setThemeButtonState();
     });
+
+    for (const button of sideThemeButtons) {
+      button.addEventListener("click", () => themeButton?.click());
+    }
 
     const setSearchOpen = (open) => {
       if (!searchOverlay) return;

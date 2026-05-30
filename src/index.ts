@@ -150,7 +150,8 @@ async function main() {
     for (const data_source of database.data_sources) {
       console.info(`[Info] Processing data source: ${data_source.name} (${data_source.id})`);
       for await (const page of iteratePaginatedAPI(notion.dataSources.query, {
-        data_source_id: data_source.id
+        data_source_id: data_source.id,
+        filter: mount.query_filter,
       })) {
         if (!isFullPage(page) || page.object !== "page") {
           continue;
