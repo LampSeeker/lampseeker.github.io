@@ -1,3 +1,17 @@
+<script>
+  (() => {
+    const storageKey = "lampseeker-theme";
+    try {
+      const savedTheme = localStorage.getItem(storageKey);
+      if (savedTheme === "light" || savedTheme === "dark") {
+        document.documentElement.setAttribute("data-user-theme", savedTheme);
+      }
+    } catch (_) {
+      // Ignore storage failures and keep default theme.
+    }
+  })();
+</script>
+
 {{- if .IsPage -}}
   {{- $raw := .RawContent | default "" -}}
   {{- $needsMath := or

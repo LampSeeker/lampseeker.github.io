@@ -1,0 +1,130 @@
+{{- $aboutURL := "/about/" -}}
+{{- with .Site.Menus.after -}}
+  {{- with index . 0 -}}
+    {{- $aboutURL = .URL -}}
+  {{- end -}}
+{{- end -}}
+
+<header class="book-top-strip">
+  <div class="book-top-strip-inner">
+    <nav class="book-top-links" aria-label="Primary">
+      <a href="{{ $aboutURL }}">About</a>
+      <a href="/posts/">Posts</a>
+      <a href="/projects/">Projects</a>
+      <button id="book-top-search-open" class="book-top-icon-button" type="button" aria-label="Open search" title="Open search">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="m20 20-3.5-3.5"></path>
+        </svg>
+      </button>
+      <button id="book-theme-toggle" class="book-top-icon-button book-top-theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">
+        <svg class="book-theme-toggle-icon book-theme-toggle-icon-light" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 4.25a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V5a.75.75 0 0 1 .75-.75Zm0 12.5a.75.75 0 0 1 .75.75V19a.75.75 0 0 1-1.5 0v-1.5a.75.75 0 0 1 .75-.75ZM5.25 11.25a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1 0-1.5h1.5Zm15 0a.75.75 0 0 1 0 1.5h-1.5a.75.75 0 0 1 0-1.5h1.5ZM6.9 6.9a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 0 1-1.06 1.06L6.9 7.96a.75.75 0 0 1 0-1.06Zm8.08 8.08a.75.75 0 0 1 1.06 0l1.06 1.06a.75.75 0 0 1-1.06 1.06l-1.06-1.06a.75.75 0 0 1 0-1.06ZM17.1 6.9a.75.75 0 0 1 0 1.06l-1.06 1.06a.75.75 0 1 1-1.06-1.06l1.06-1.06a.75.75 0 0 1 1.06 0Zm-8.08 8.08a.75.75 0 0 1 0 1.06L7.96 17.1a.75.75 0 1 1-1.06-1.06l1.06-1.06a.75.75 0 0 1 1.06 0ZM12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" />
+        </svg>
+        <svg class="book-theme-toggle-icon book-theme-toggle-icon-dark" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M13.5 3.75a.75.75 0 0 1 .68 1.06A7.5 7.5 0 1 0 19.2 14.5a.75.75 0 0 1 .99.95 9 9 0 1 1-7.36-11.7.8.8 0 0 1 .67 0Z" />
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<div id="book-search-overlay" class="book-search-overlay" aria-hidden="true">
+  <div class="book-search-modal">
+    <div class="book-search-modal-header">
+      <input id="book-top-search-input" type="text" placeholder="Search posts and pages..." aria-label="Search posts and pages" maxlength="80" />
+      <button id="book-top-search-close" class="book-top-icon-button" type="button" aria-label="Close search" title="Close search">X</button>
+    </div>
+    <ul id="book-top-search-list" class="book-search-list">
+      {{- $searchPages := where site.RegularPages "Params.bookHidden" "ne" true -}}
+      {{- range $searchPages.ByDate.Reverse -}}
+        <li data-title="{{ .Title | lower }}" data-summary="{{ .Summary | plainify | lower }}">
+          <a href="{{ .RelPermalink }}">
+            <span class="book-search-item-title">{{ .Title }}</span>
+            <span class="book-search-item-meta">{{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}</span>
+          </a>
+        </li>
+      {{- end -}}
+    </ul>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const storageKey = "lampseeker-theme";
+    const root = document.documentElement;
+    const themeButton = document.getElementById("book-theme-toggle");
+    const searchOpenButton = document.getElementById("book-top-search-open");
+    const searchCloseButton = document.getElementById("book-top-search-close");
+    const searchOverlay = document.getElementById("book-search-overlay");
+    const searchInput = document.getElementById("book-top-search-input");
+    const searchItems = Array.from(document.querySelectorAll("#book-top-search-list li"));
+
+    const getResolvedTheme = () => {
+      const forced = root.getAttribute("data-user-theme");
+      if (forced === "light" || forced === "dark") return forced;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    };
+
+    const setThemeButtonState = () => {
+      const currentTheme = getResolvedTheme();
+      themeButton?.setAttribute("data-theme", currentTheme);
+      if (!themeButton) return;
+      if (currentTheme === "dark") {
+        themeButton.setAttribute("aria-label", "Switch to light mode");
+        themeButton.setAttribute("title", "Switch to light mode");
+      } else {
+        themeButton.setAttribute("aria-label", "Switch to dark mode");
+        themeButton.setAttribute("title", "Switch to dark mode");
+      }
+    };
+
+    themeButton?.addEventListener("click", () => {
+      const currentTheme = getResolvedTheme();
+      const nextTheme = currentTheme === "dark" ? "light" : "dark";
+      root.setAttribute("data-user-theme", nextTheme);
+      try {
+        localStorage.setItem(storageKey, nextTheme);
+      } catch (_) {
+        // Ignore storage failures and keep runtime theme.
+      }
+      setThemeButtonState();
+    });
+
+    const setSearchOpen = (open) => {
+      if (!searchOverlay) return;
+      searchOverlay.classList.toggle("is-open", open);
+      searchOverlay.setAttribute("aria-hidden", open ? "false" : "true");
+      if (open) {
+        setTimeout(() => searchInput?.focus(), 10);
+      }
+    };
+
+    const applySearchFilter = () => {
+      const query = (searchInput?.value || "").trim().toLowerCase();
+      for (const item of searchItems) {
+        const title = item.getAttribute("data-title") || "";
+        const summary = item.getAttribute("data-summary") || "";
+        const show = !query || title.includes(query) || summary.includes(query);
+        item.style.display = show ? "" : "none";
+      }
+    };
+
+    searchOpenButton?.addEventListener("click", () => setSearchOpen(true));
+    searchCloseButton?.addEventListener("click", () => setSearchOpen(false));
+    searchOverlay?.addEventListener("click", (event) => {
+      if (event.target === searchOverlay) setSearchOpen(false);
+    });
+    searchInput?.addEventListener("input", applySearchFilter);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setSearchOpen(false);
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    });
+
+    setThemeButtonState();
+    applySearchFilter();
+  })();
+</script>

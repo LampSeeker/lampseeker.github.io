@@ -1,0 +1,50 @@
+{{ define "main" }}
+  {{ $author := site.Params.author }}
+  {{ $recentPosts := first 9 (where site.RegularPages "Section" "posts").ByDate.Reverse }}
+
+  <section class="home-hero">
+    <div class="home-hero-avatar">
+      {{ with $author.image }}
+        <img src="{{ . | relURL }}" alt="{{ $author.name | default "Author" }}" />
+      {{ else }}
+        <span>{{ substr ($author.name | default "L") 0 1 }}</span>
+      {{ end }}
+    </div>
+    <h1 class="home-hero-name">{{ $author.name | default "LampSeeker" }}</h1>
+    {{ with $author.headline }}<p class="home-hero-headline">{{ . }}</p>{{ end }}
+    {{ with $author.bio }}<p class="home-hero-bio">{{ . }}</p>{{ end }}
+  </section>
+
+  <section class="home-recent">
+    <div class="home-recent-header">
+      <h2>최근 글</h2>
+      <a href="/posts/">View all</a>
+    </div>
+    <div class="home-recent-grid">
+      {{ range $recentPosts }}
+        <article class="home-post-card">
+          <a class="home-post-card-link" href="{{ .RelPermalink }}">
+            {{ with (or .Params.featuredImage .Params.featureimage) }}
+              <div class="home-post-thumb">
+                <img src="{{ . | relURL }}" alt="{{ $.Title }}" loading="lazy" />
+              </div>
+            {{ end }}
+            <div class="home-post-body">
+              <h3>{{ .Title }}</h3>
+              <p class="home-post-meta">
+                {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
+                <span>·</span>
+                <span>{{ .WordCount }} 단어</span>
+                <span>·</span>
+                <span>{{ .ReadingTime }} 분</span>
+              </p>
+              <p class="home-post-summary">{{ .Summary | plainify | truncate 130 }}</p>
+            </div>
+          </a>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}
+
+{{ define "toc-container" }}{{ end }}

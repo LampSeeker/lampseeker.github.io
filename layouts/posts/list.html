@@ -1,0 +1,38 @@
+{{ define "main" }}
+  <section class="posts-page">
+    <h1>Posts</h1>
+    {{ range (.RegularPages.ByDate.Reverse).GroupByDate "2006" }}
+      <h2 class="posts-year">{{ .Key }}</h2>
+      <div class="posts-list">
+        {{ range .Pages }}
+          <article class="posts-item-card">
+            <a href="{{ .RelPermalink }}" class="posts-item-link">
+              <div class="posts-item-thumb">
+                {{ with (or .Params.featuredImage .Params.featureimage) }}
+                  <img src="{{ . | relURL }}" alt="{{ $.Title }}" loading="lazy" />
+                {{ end }}
+              </div>
+              <div class="posts-item-body">
+                <h3>{{ .Title }}</h3>
+                <p class="posts-item-meta">
+                  {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
+                  <span>·</span>
+                  <span>{{ .WordCount }} 단어수</span>
+                  <span>·</span>
+                  <span>{{ .ReadingTime }} 분</span>
+                </p>
+                <p class="posts-item-summary">{{ .Summary | plainify | truncate 180 }}</p>
+              </div>
+            </a>
+          </article>
+        {{ end }}
+      </div>
+    {{ end }}
+  </section>
+{{ end }}
+
+{{ define "toc-container" }}{{ end }}
+
+{{ define "footer" }}
+  {{ partial "docs/pagination.html" . }}
+{{ end }}
