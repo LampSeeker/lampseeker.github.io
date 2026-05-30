@@ -9,6 +9,12 @@ const userConfig: UserConfig = {
       {
         database_id: "f695b029-aea6-82ea-a34f-016e7e6cfd45",
         target_folder: "posts",
+        query_filter: {
+          property: "공개여부",
+          checkbox: {
+            equals: true,
+          },
+        },
       },
       {
         database_id: "92b3f165-8e02-49ca-9c68-b7996c2dbaeb",
@@ -23,6 +29,12 @@ const userConfig: UserConfig = {
       {
         database_id: "3635b029-aea6-80e2-835d-cbe9bc8776c7",
         target_folder: "projects/ark-raiders-rl",
+        query_filter: {
+          property: "공개여부",
+          checkbox: {
+            equals: true,
+          },
+        },
       },
     ],
     pages: [
