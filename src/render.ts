@@ -6,7 +6,7 @@ import * as md from "./markdown/md";
 import YAML from "yaml";
 import { sh } from "./sh";
 import { DatabaseMount, PageMount } from "./config";
-import { getPageTitle, getCoverLink, getFileName } from "./helpers";
+import { getPageTitle, getCoverLinkFromPage, getFileName } from "./helpers";
 import path from "path";
 import { getContentFile } from "./file";
 
@@ -46,8 +46,7 @@ export async function renderPage(
   }
 
   // set featuredImage
-  const featuredImageLink = await getCoverLink(page.id, notion);
-  if (featuredImageLink) {
+  const featuredImageLink = await getCoverLinkFromPage(page);  if (featuredImageLink) {
     frontMatter.featuredImage = featuredImageLink;
     // Blowfish reads .Params.featureimage (lowercase) for hero/card images.
     frontMatter.featureimage = featuredImageLink;
@@ -72,84 +71,83 @@ export async function renderPage(
   }
 
   // map page properties to front matter
-  for (const property in page.properties) {
-    const id = page.properties[property].id;
-    const response = await notion.pages.properties.retrieve({
-      page_id: page.id,
-      property_id: id,
-    });
-    if (response.object === "property_item") {
-      switch (response.type) {
-        case "checkbox":
-          frontMatter[property] = response.checkbox;
-          break;
-        case "select":
-          if (response.select) frontMatter[property] = response.select.name;
-          break;
-        case "multi_select":
-          frontMatter[property] = response.multi_select.map(
-            (select) => select.name,
-          );
-          break;
-        case "email":
-          if (response.email) frontMatter[property] = response.email;
-          break;
-        case "url":
-          if (response.url) frontMatter[property] = response.url;
-          break;
-        case "date":
-          if (response.date) frontMatter[property] = response.date.start;
-          break;
-        case "number":
-          if (response.number) frontMatter[property] = response.number;
-          break;
-        case "phone_number":
-          if (response.phone_number)
-            frontMatter[property] = response.phone_number;
-          break;
-        case "status":
-          if (response.status) frontMatter[property] = response.status.name;
-        // ignore these properties
-        case "last_edited_by":
-        case "last_edited_time":
-        case "rollup":
-        case "files":
-        case "formula":
-        case "created_by":
-        case "created_time":
-          break;
-        default:
-          break;
-      }
-    } else {
-      for await (const result of iteratePaginatedAPI(
-        // @ts-ignore
-        notion.pages.properties.retrieve,
-        {
-          page_id: page.id,
-          property_id: id,
-        },
-      )) {
-        switch (result.type) {
-          case "people":
-            frontMatter[property] = frontMatter[property] || [];
-            if (isFullUser(result.people)) {
-              const fm = frontMatter[property];
-              if (Array.isArray(fm) && result.people.name) {
-                fm.push(result.people.name);
-              }
-            }
-            break;
-          case "rich_text":
-            frontMatter[property] = frontMatter[property] || "";
-            frontMatter[property] += result.rich_text.plain_text;
-          // ignore these
-          case "relation":
-          case "title":
-          default:
-            break;
+  for (const [property, propertyValue] of Object.entries(page.properties)) {
+    switch (propertyValue.type) {
+      case "checkbox":
+        frontMatter[property] = propertyValue.checkbox;
+        break;
+
+      case "select":
+        if (propertyValue.select) {
+          frontMatter[property] = propertyValue.select.name;
         }
-      }
+        break;
+
+      case "multi_select":
+        frontMatter[property] = propertyValue.multi_select.map(
+          (select) => select.name,
+        );
+        break;
+
+      case "email":
+        if (propertyValue.email) {
+          frontMatter[property] = propertyValue.email;
+        }
+        break;
+
+      case "url":
+        if (propertyValue.url) {
+          frontMatter[property] = propertyValue.url;
+        }
+        break;
+
+      case "date":
+        if (propertyValue.date) {
+          frontMatter[property] = propertyValue.date.start;
+        }
+        break;
+
+      case "number":
+        if (propertyValue.number !== null) {
+          frontMatter[property] = propertyValue.number;
+        }
+        break;
+
+      case "phone_number":
+        if (propertyValue.phone_number) {
+          frontMatter[property] = propertyValue.phone_number;
+        }
+        break;
+
+      case "status":
+        if (propertyValue.status) {
+          frontMatter[property] = propertyValue.status.name;
+        }
+        break;
+
+      case "people":
+        frontMatter[property] = propertyValue.people
+          .map((person) => {
+          if ("name" in person && typeof person.name === "string") {
+            return person.name;
+          }
+
+          if ("id" in person && typeof person.id === "string") {
+            return person.id;
+          }
+        return null;
+        })
+        .filter((name): name is string => Boolean(name));
+      break;
+
+      case "rich_text":
+        frontMatter[property] = propertyValue.rich_text
+          .map((text) => text.plain_text)
+          .join("");
+        break;
+
+      default:
+        break;
     }
   }
 

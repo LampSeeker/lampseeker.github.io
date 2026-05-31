@@ -35,6 +35,17 @@ export async function getCoverLink(
     : await downloadAsset(page.cover.file.url, page_id, ".png");
 }
 
+export async function getCoverLinkFromPage(
+  page: PageObjectResponse,
+): Promise<string | null> {
+  if (page.cover === null) {
+    return null;
+  }
+  return page.cover.type === "external"
+    ? page.cover.external.url
+    : await downloadAsset(page.cover.file.url, page.id, ".png");
+}
+
 export async function downloadAsset(
   url: string,
   id: string,
