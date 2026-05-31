@@ -10,6 +10,7 @@ type ContentFile = {
   metadata: PageObjectResponse;
   managed: boolean;
   renderVersion?: string;
+  childDatabases?: { database_id: string; title: string }[];
 };
 
 function isMarkdownFile(filename: string): boolean {
@@ -29,6 +30,7 @@ export function getContentFile(filepath: string): ContentFile | undefined {
       metadata,
       managed: (filedata.attributes as any).MANAGED_BY_NOTION_HUGO ?? false,
       renderVersion: (filedata.attributes as any).NOTION_HUGO_RENDER_VERSION,
+      childDatabases: (filedata.attributes as any).notion_child_databases ?? [],
     };
   } else {
     console.warn(
@@ -61,6 +63,7 @@ export function getAllContentFiles(dirPath: string): ContentFile[] {
         metadata,
         managed: (filedata.attributes as any).MANAGED_BY_NOTION_HUGO ?? false,
         renderVersion: (filedata.attributes as any).NOTION_HUGO_RENDER_VERSION,
+        childDatabases: (filedata.attributes as any).notion_child_databases ?? [],
       });
     } else {
       console.warn(

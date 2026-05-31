@@ -1,15 +1,17 @@
 {{ define "main" }}
   <section class="posts-page">
     <h1>Posts</h1>
-    {{ range (.RegularPages.ByDate.Reverse).GroupByDate "2006" }}
+    {{ $postPages := where .RegularPages "Params.notion_child_databases" "==" nil }}
+    {{ range ($postPages.ByDate.Reverse).GroupByDate "2006" }}
       <h2 class="posts-year">{{ .Key }}</h2>
       <div class="posts-list">
         {{ range .Pages }}
+          {{ $postTitle := .Title }}
           <article class="posts-item-card">
             <a href="{{ .RelPermalink }}" class="posts-item-link">
               <div class="posts-item-thumb">
                 {{ with (or .Params.featuredImage .Params.featureimage) }}
-                  <img src="{{ . | relURL }}" alt="{{ $.Title }}" loading="lazy" />
+                  <img src="{{ . | relURL }}" alt="{{ $postTitle }}" loading="lazy" />
                 {{ end }}
               </div>
               <div class="posts-item-body">

@@ -44,6 +44,7 @@
     </div>
     <ul id="book-top-search-list" class="book-search-list">
       {{- $searchPages := where site.RegularPages "Params.bookHidden" "ne" true -}}
+      {{- $searchPages = where $searchPages "Params.notion_child_databases" "==" nil -}}
       {{- range $searchPages.ByDate.Reverse -}}
         <li data-title="{{ .Title | lower }}" data-summary="{{ .Summary | plainify | lower }}">
           <a href="{{ .RelPermalink }}">

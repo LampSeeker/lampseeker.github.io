@@ -17,6 +17,18 @@ type MountedDatabaseMeta = {
   parent_page_id: string | null;
 };
 
+function slugifyPathSegment(title: string): string {
+  const slug = title
+    .trim()
+    .toLowerCase()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return slug || "untitled";
+}
+
 function bumpCount(counter: Map<string, number>, id: string | null) {
   if (!id) return;
   counter.set(id, (counter.get(id) || 0) + 1);
@@ -122,10 +134,17 @@ async function main() {
   const mountedDatabases: MountedDatabaseMeta[] = [];
   const pageIdsByDatabase = new Map<string, Set<string>>();
   const rootPageParentCounts = new Map<string, number>();
+  const queuedDatabaseIds = new Set(config.mount.databases.map((mount) => mount.database_id));
+  const processedDatabaseIds = new Set<string>();
 
   console.info("[Info] Start processing mounted databases");
   // process mounted databases
-  for (const mount of config.mount.databases) {
+  for (let mountIndex = 0; mountIndex < config.mount.databases.length; mountIndex += 1) {
+    const mount = config.mount.databases[mountIndex];
+    if (processedDatabaseIds.has(mount.database_id)) {
+      continue;
+    }
+    processedDatabaseIds.add(mount.database_id);
     fs.ensureDirSync(`content/${mount.target_folder}`);
     const database = await notion.databases.retrieve({ database_id: mount.database_id });
     if (!isFullDatabase(database)) {
@@ -149,17 +168,51 @@ async function main() {
 
     for (const data_source of database.data_sources) {
       console.info(`[Info] Processing data source: ${data_source.name} (${data_source.id})`);
-      for await (const page of iteratePaginatedAPI(notion.dataSources.query, {
-        data_source_id: data_source.id,
-        filter: mount.query_filter,
-      })) {
-        if (!isFullPage(page) || page.object !== "page") {
+      try {
+        for await (const page of iteratePaginatedAPI(notion.dataSources.query, {
+          data_source_id: data_source.id,
+          filter: mount.query_filter,
+        })) {
+          if (!isFullPage(page) || page.object !== "page") {
+            continue;
+          }
+          pageIds.add(page.id);
+          console.info(`[Info] Start processing page ${page.id}`);
+          pages.push(getFileName(getPageTitle(page), page.id));
+          const { childDatabases } = await savePage(page, notion, mount);
+          for (const childDatabase of childDatabases) {
+            if (queuedDatabaseIds.has(childDatabase.database_id)) {
+              continue;
+            }
+            queuedDatabaseIds.add(childDatabase.database_id);
+            const targetFolder = path.posix.join(
+              mount.target_folder,
+              slugifyPathSegment(childDatabase.title),
+            );
+            console.info(
+              `[Info] Auto-mounted child database: ${childDatabase.title} (${childDatabase.database_id}) -> ${targetFolder}`,
+            );
+            config.mount.databases.push({
+              database_id: childDatabase.database_id,
+              target_folder: targetFolder,
+              query_filter: mount.query_filter,
+              auto_discovered: true,
+            });
+          }
+        }
+      } catch (err: any) {
+        const isMissingFilterProperty =
+          err?.code === "validation_error" &&
+          typeof err?.message === "string" &&
+          err.message.includes("Could not find property");
+
+        if (mount.auto_discovered && isMissingFilterProperty) {
+          console.warn(
+            `[Warn] Skipping auto-discovered child database ${mount.database_id}: inherited filter property was not found.`,
+          );
           continue;
         }
-        pageIds.add(page.id);
-        console.info(`[Info] Start processing page ${page.id}`);
-        pages.push(getFileName(getPageTitle(page), page.id));
-        await savePage(page, notion, mount);
+        throw err;
       }
     }
     pageIdsByDatabase.set(mount.database_id, pageIds);

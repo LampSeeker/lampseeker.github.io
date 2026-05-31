@@ -746,6 +746,7 @@ main.container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+  align-items: stretch;
 }
 
 .home-post-card {
@@ -753,12 +754,15 @@ main.container {
   border-radius: 0.7rem;
   background: var(--notion-default-bg);
   overflow: hidden;
+  min-height: 100%;
 }
 
 .home-post-card-link {
   color: inherit;
   text-decoration: none;
-  display: block;
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
 }
 
 .home-post-thumb {
@@ -774,6 +778,9 @@ main.container {
 
 .home-post-body {
   padding: 0.9rem;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .home-post-body h3 {
@@ -797,6 +804,10 @@ main.container {
   color: var(--notion-default-text);
   font-size: 0.98rem;
   line-height: 1.5;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .posts-page h1 {
@@ -819,20 +830,24 @@ main.container {
   border-radius: 0.7rem;
   background: var(--notion-default-bg);
   overflow: hidden;
+  min-height: 12.75rem;
 }
 
 .posts-item-link {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
+  min-height: 12.75rem;
   color: inherit;
   text-decoration: none;
 }
 
 .posts-item-thumb {
   background: var(--notion-gray-bg);
+  min-height: 12.75rem;
 }
 
 .posts-item-thumb img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -840,6 +855,10 @@ main.container {
 
 .posts-item-body {
   padding: 0.9rem 1rem;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .posts-item-body h3 {
@@ -863,6 +882,10 @@ main.container {
   color: var(--notion-default-text);
   font-size: 1.05rem;
   line-height: 1.55;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .markdown hr {
@@ -1565,10 +1588,12 @@ main.container {
 
   .posts-item-link {
     grid-template-columns: 1fr;
+    min-height: 0;
   }
 
   .posts-item-thumb {
     aspect-ratio: 16 / 9;
+    min-height: 0;
   }
 
   .posts-item-body h3 {

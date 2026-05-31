@@ -26,16 +26,6 @@ const userConfig: UserConfig = {
           },
         },
       },
-      {
-        database_id: "3635b029-aea6-80e2-835d-cbe9bc8776c7",
-        target_folder: "projects/ark-raiders-rl",
-        query_filter: {
-          property: "공개여부",
-          checkbox: {
-            equals: true,
-          },
-        },
-      },
     ],
     pages: [
       {

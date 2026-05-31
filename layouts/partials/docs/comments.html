@@ -1,4 +1,4 @@
-{{- if and .IsPage (ne .Params.comments false) -}}
+{{- if and .IsPage (ne .Params.comments false) (not .Params.notion_child_databases) -}}
 <section class="notion-comments" aria-label="Comments">
   <script src="https://giscus.app/client.js"
     data-repo="LampSeeker/lampseeker.github.io"

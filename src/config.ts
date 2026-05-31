@@ -18,6 +18,7 @@ export type DatabaseMount = {
   database_id: string;
   target_folder: string;
   query_filter?: QueryDataSourceParameters["filter"];
+  auto_discovered?: boolean;
 };
 
 export type Mount = {

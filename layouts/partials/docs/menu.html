@@ -68,7 +68,9 @@
   </ul>
 {{ end }}
 
-{{ $recentPages := first 6 ((where site.RegularPages "Params.bookHidden" "ne" true).ByDate.Reverse) }}
+{{ $recentPages := where site.RegularPages "Params.bookHidden" "ne" true }}
+{{ $recentPages = where $recentPages "Params.notion_child_databases" "==" nil }}
+{{ $recentPages = first 6 ($recentPages.ByDate.Reverse) }}
 {{ if gt (len $recentPages) 0 }}
   <div class="notion-menu-divider"></div>
   <div class="notion-menu-recent">

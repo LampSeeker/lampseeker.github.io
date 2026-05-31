@@ -169,6 +169,7 @@ export async function renderPage(
 
   return {
     title,
+    childDatabases,
     pageString:
       "---\n" +
       YAML.stringify(frontMatter, {
@@ -192,7 +193,7 @@ export async function savePage(
   page: PageObjectResponse,
   notion: Client,
   mount: DatabaseMount | PageMount,
-) {
+): Promise<{ childDatabases: { database_id: string; title: string }[] }> {
   const postpath = path.join(
     "content",
     mount.target_folder,
@@ -205,13 +206,14 @@ export async function savePage(
     post.renderVersion === NOTION_HUGO_RENDER_VERSION
   ) {
     console.info(`[Info] The post ${postpath} is up-to-date, skipped.`);
-    return;
+    return { childDatabases: post.childDatabases ?? [] };
   }
   // otherwise update the page
   console.info(`[Info] Updating ${postpath}`);
 
-  const { title, pageString } = await renderPage(page, notion, mount);
+  const { title, pageString, childDatabases } = await renderPage(page, notion, mount);
   const fileName = getFileName(title, page.id);
   await sh(`hugo new "${mount.target_folder}/${fileName}"`, false);
   fs.writeFileSync(`content/${mount.target_folder}/${fileName}`, pageString);
+  return { childDatabases };
 }

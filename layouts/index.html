@@ -3,7 +3,9 @@
   {{ $root := hugo.Data.notion_root_page }}
   {{ $heroImage := (or $root.hero_image $author.image) }}
   {{ $heroIntro := (or $root.intro $author.bio) }}
-  {{ $recentPosts := first 9 (where site.RegularPages "Section" "posts").ByDate.Reverse }}
+  {{ $postPages := where site.RegularPages "Section" "posts" }}
+  {{ $postPages = where $postPages "Params.notion_child_databases" "==" nil }}
+  {{ $recentPosts := first 9 ($postPages.ByDate.Reverse) }}
 
   <section class="home-hero">
     {{ with $heroImage }}
@@ -30,11 +32,12 @@
     </div>
     <div class="home-recent-grid">
       {{ range $recentPosts }}
+        {{ $postTitle := .Title }}
         <article class="home-post-card">
           <a class="home-post-card-link" href="{{ .RelPermalink }}">
             {{ with (or .Params.featuredImage .Params.featureimage) }}
               <div class="home-post-thumb">
-                <img src="{{ . | relURL }}" alt="{{ $.Title }}" loading="lazy" />
+                <img src="{{ . | relURL }}" alt="{{ $postTitle }}" loading="lazy" />
               </div>
             {{ end }}
             <div class="home-post-body">
