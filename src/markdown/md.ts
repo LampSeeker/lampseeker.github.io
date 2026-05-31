@@ -208,7 +208,7 @@ function textRichText(text: RichTextItemResponseCommon & TextRichTextItemRespons
     annotations.color !== "default" ||
     !!text.href;
 
-  let content = hasHtmlAnnotation ? escapeHtml(text.text.content) : text.text.content;
+  let content = escapeHtml(text.text.content);
   if (annotations.code) {
     content = `<code>${content}</code>`;
   }
