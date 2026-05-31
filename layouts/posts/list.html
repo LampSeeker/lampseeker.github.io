@@ -1,34 +1,56 @@
 {{ define "main" }}
-  <section class="posts-page">
-    <h1>Posts</h1>
+  <section class="posts-list-page">
+    <header class="posts-list-header">
+      <h1>Posts</h1>
+    </header>
+
     {{ $postPages := where .RegularPages "Params.notion_child_databases" "==" nil }}
+
     {{ range ($postPages.ByDate.Reverse).GroupByDate "2006" }}
-      <h2 class="posts-year">{{ .Key }}</h2>
-      <div class="posts-list">
-        {{ range .Pages }}
-          {{ $postTitle := .Title }}
-          <article class="posts-item-card">
-            <a href="{{ .RelPermalink }}" class="posts-item-link">
-              <div class="posts-item-thumb">
-                {{ with (or .Params.featuredImage .Params.featureimage) }}
-                  <img src="{{ . | relURL }}" alt="{{ $postTitle }}" loading="lazy" />
-                {{ end }}
-              </div>
-              <div class="posts-item-body">
-                <h3>{{ .Title }}</h3>
-                <p class="posts-item-meta">
-                  {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
-                  <span>·</span>
-                  <span>{{ .WordCount }} 단어수</span>
-                  <span>·</span>
-                  <span>{{ .ReadingTime }} 분</span>
-                </p>
-                <p class="posts-item-summary">{{ .Summary | plainify | truncate 180 }}</p>
-              </div>
-            </a>
-          </article>
-        {{ end }}
-      </div>
+      <section class="posts-year-group">
+        <h2 class="posts-year-title">{{ .Key }}</h2>
+
+        <div class="posts-list">
+          {{ range .Pages }}
+            {{ $postTitle := .Title }}
+            {{ $thumbSrc := or .Params.featuredImage .Params.featureimage }}
+
+            <article class="posts-list-card">
+              <a class="posts-list-card-link" href="{{ .RelPermalink }}">
+                <div class="posts-list-thumb">
+                  {{ with $thumbSrc }}
+                    <img
+                      src="{{ if or (hasPrefix . "http://") (hasPrefix . "https://") }}{{ . }}{{ else }}{{ . | relURL }}{{ end }}"
+                      alt="{{ $postTitle }}"
+                      loading="lazy"
+                    />
+                  {{ else }}
+                    <div class="posts-list-thumb-placeholder">
+                      <span>Be Your Own Lamp</span>
+                    </div>
+                  {{ end }}
+                </div>
+
+                <div class="posts-list-body">
+                  <h3>{{ .Title }}</h3>
+
+                  <p class="posts-list-meta">
+                    {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
+                    <span>·</span>
+                    <span>{{ .WordCount }} 단어</span>
+                    <span>·</span>
+                    <span>{{ .ReadingTime }} 분</span>
+                  </p>
+
+                  <p class="posts-list-summary">
+                    {{ .Summary | plainify | truncate 140 }}
+                  </p>
+                </div>
+              </a>
+            </article>
+          {{ end }}
+        </div>
+      </section>
     {{ end }}
   </section>
 {{ end }}

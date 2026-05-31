@@ -723,11 +723,11 @@ main.container {
 .home-recent {
   margin-top: 2.2rem;
 }
-
 .home-recent-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
@@ -740,6 +740,7 @@ main.container {
 .home-recent-header a {
   color: var(--notion-default-text);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .home-recent-grid {
@@ -750,36 +751,58 @@ main.container {
 }
 
 .home-post-card {
+  min-width: 0;
   border: 1px solid var(--gray-200);
   border-radius: 0.7rem;
   background: var(--notion-default-bg);
   overflow: hidden;
-  min-height: 100%;
 }
 
 .home-post-card-link {
   color: inherit;
   text-decoration: none;
   display: flex;
-  min-height: 100%;
+  height: 100%;
+  min-height: 30rem;
   flex-direction: column;
 }
 
 .home-post-thumb {
+  width: 100%;
   aspect-ratio: 16 / 9;
   background: var(--notion-gray-bg);
+  overflow: hidden;
+  flex: 0 0 auto;
 }
 
 .home-post-thumb img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.home-post-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: var(--notion-gray-text);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .home-post-body {
   padding: 0.9rem;
   display: flex;
   flex: 1 1 auto;
+  min-width: 0;
   flex-direction: column;
 }
 
@@ -788,6 +811,12 @@ main.container {
   color: var(--notion-default-text);
   font-size: 1.12rem;
   line-height: 1.35;
+
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  min-height: 3.05rem;
 }
 
 .home-post-meta {
@@ -795,8 +824,11 @@ main.container {
   color: var(--notion-gray-text);
   font-size: 0.84rem;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .home-post-summary {
@@ -804,10 +836,11 @@ main.container {
   color: var(--notion-default-text);
   font-size: 0.98rem;
   line-height: 1.5;
+
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
 }
 
 .posts-page h1 {
@@ -1664,5 +1697,171 @@ main.container {
 
   .notion-page-about .book-columns > ul > li:nth-child(2) {
     padding-top: 0;
+  }
+}
+
+.posts-list-page {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.posts-list-header {
+  margin-bottom: 1.4rem;
+}
+
+.posts-list-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--notion-default-text);
+}
+
+.posts-year-group {
+  margin-top: 1.4rem;
+}
+
+.posts-year-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--notion-default-text);
+}
+
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.posts-list-card {
+  min-width: 0;
+  border: 1px solid var(--gray-200);
+  border-radius: 0.65rem;
+  background: var(--notion-default-bg);
+  overflow: hidden;
+}
+
+.posts-list-card-link {
+  display: grid;
+  grid-template-columns: 10rem minmax(0, 1fr);
+  height: 8rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.posts-list-card-link:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.posts-list-thumb {
+  width: 100%;
+  height: 100%;
+  min-height: 7rem;
+  overflow: hidden;
+  background: var(--notion-gray-bg);
+}
+
+.posts-list-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.posts-list-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem;
+  color: var(--notion-gray-text);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.posts-list-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.75rem 0.95rem;
+}
+
+.posts-list-body h3 {
+  display: -webkit-box;
+  margin: 0 0 0.35rem;
+  overflow: hidden;
+  color: var(--notion-default-text);
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.posts-list-meta {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  margin: 0 0 0.35rem;
+  overflow: hidden;
+  color: var(--notion-gray-text);
+  font-size: 0.76rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.posts-list-summary {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--notion-default-text);
+  font-size: 0.86rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (max-width: 900px) {
+  .posts-list-page {
+    max-width: 100%;
+  }
+
+  .posts-list-card-link {
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    min-height: 6.5rem;
+  }
+
+  .posts-list-thumb,
+  .posts-list-thumb-placeholder {
+    min-height: 6.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .posts-list-card-link {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .posts-list-thumb,
+  .posts-list-thumb-placeholder {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+
+  .posts-list-body {
+    justify-content: flex-start;
+  }
+
+  .posts-list-body h3 {
+    -webkit-line-clamp: 2;
   }
 }

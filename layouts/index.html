@@ -33,15 +33,27 @@
     <div class="home-recent-grid">
       {{ range $recentPosts }}
         {{ $postTitle := .Title }}
+        {{ $thumbSrc := or .Params.featuredImage .Params.featureimage }}
+
         <article class="home-post-card">
           <a class="home-post-card-link" href="{{ .RelPermalink }}">
-            {{ with (or .Params.featuredImage .Params.featureimage) }}
-              <div class="home-post-thumb">
-                <img src="{{ . | relURL }}" alt="{{ $postTitle }}" loading="lazy" />
-              </div>
-            {{ end }}
+            <div class="home-post-thumb">
+              {{ with $thumbSrc }}
+                <img
+                  src="{{ if or (hasPrefix . "http://") (hasPrefix . "https://") }}{{ . }}{{ else }}{{ . | relURL }}{{ end }}"
+                  alt="{{ $postTitle }}"
+                  loading="lazy"
+                />
+              {{ else }}
+                <div class="home-post-thumb-placeholder">
+                  <span>Be Your Own Lamp</span>
+                </div>
+              {{ end }}
+            </div>
+
             <div class="home-post-body">
               <h3>{{ .Title }}</h3>
+
               <p class="home-post-meta">
                 {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
                 <span>·</span>
@@ -49,6 +61,7 @@
                 <span>·</span>
                 <span>{{ .ReadingTime }} 분</span>
               </p>
+
               <p class="home-post-summary">{{ .Summary | plainify | truncate 130 }}</p>
             </div>
           </a>
