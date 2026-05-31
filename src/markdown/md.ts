@@ -270,6 +270,13 @@ async function mentionRichText(
       const linkPreview = mention.link_preview;
       return link(linkPreview.url, linkPreview.url);
     }
+    case "link_mention": {
+      const linkMention = (mention as any).link_mention;
+      const mentionText = text as any;
+      const href = linkMention?.href || mentionText.href || mentionText.plain_text || "";
+      const title = linkMention?.title || mentionText.plain_text || href;
+      return href ? link(title, href) : title;
+    }
     case "template_mention": {
       // https://developers.notion.com/reference/rich-text#template-mention-type-object
       // Hide the template button
@@ -297,6 +304,7 @@ export async function richText(
         } else if (text.type === "mention") {
           return await mentionRichText(text, notion);
         }
+        return (text as { plain_text?: string }).plain_text ?? "";
       }),
     )
   ).join("");
