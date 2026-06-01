@@ -50,7 +50,7 @@ jobs:
         run: npm start
 
       - name: Build Hugo site
-        run: hugo --gc --minify --baseURL "${SITE_BASE_URL}"
+        run: hugo --gc --minify --cleanDestinationDir --baseURL "${SITE_BASE_URL}"
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

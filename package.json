@@ -15,7 +15,9 @@
   },
   "scripts": {
     "start": "tsx src/index.ts",
-    "server": "hugo server -D --disableFastRender --noHTTPCache",
+    "clean:notion": "node scripts/clean-notion-content.mjs",
+    "sync:fresh": "npm run clean:notion && npm start",
+    "server": "hugo server -D --disableFastRender --noHTTPCache --cleanDestinationDir",
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "format": "prettier --write src/**/*.ts"

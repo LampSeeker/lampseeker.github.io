@@ -35,6 +35,11 @@ function bumpCount(counter: Map<string, number>, id: string | null) {
   counter.set(id, (counter.get(id) || 0) + 1);
 }
 
+function toContentRelativePath(targetFolder: string, fileName: string): string {
+  const joinedPath = path.posix.join(targetFolder, fileName);
+  return joinedPath.replace(/^\.\//, "");
+}
+
 function pickPlainTextFromBlock(block: any): string {
   const blockValue = block?.[block?.type];
   const richText = blockValue?.rich_text;
@@ -129,7 +134,7 @@ async function main() {
 
   const notion = createNotionClient();
 
-  const pages: string[] = [];
+  const syncedContentPaths = new Set<string>();
   const mountedDatabases: MountedDatabaseMeta[] = [];
   const pageIdsByDatabase = new Map<string, Set<string>>();
   const rootPageParentCounts = new Map<string, number>();
@@ -177,7 +182,8 @@ async function main() {
           }
           pageIds.add(page.id);
           console.info(`[Info] Start processing page ${page.id}`);
-          pages.push(getFileName(getPageTitle(page), page.id));
+          const fileName = getFileName(getPageTitle(page), page.id);
+          syncedContentPaths.add(toContentRelativePath(mount.target_folder, fileName));
           const { childDatabases } = await savePage(page, notion, mount);
           for (const childDatabase of childDatabases) {
             if (queuedDatabaseIds.has(childDatabase.database_id)) {
@@ -247,7 +253,8 @@ async function main() {
     }
     const pageParentId = page.parent?.type === "page_id" ? page.parent.page_id : null;
     bumpCount(rootPageParentCounts, pageParentId);
-    pages.push(getFileName(getPageTitle(page), page.id));
+    const fileName = getFileName(getPageTitle(page), page.id);
+    syncedContentPaths.add(toContentRelativePath(mount.target_folder, fileName));
     await savePage(page, notion, mount);
   }
 
@@ -290,16 +297,15 @@ async function main() {
   // remove posts that exist locally but not in Notion Database
   const contentFiles = getAllContentFiles("content");
   for (const file of contentFiles) {
-    if (!pages.includes(file.filename) && file.managed) {
+    const relativePath = path.relative("content", file.filepath).split(path.sep).join("/");
+    if (!syncedContentPaths.has(relativePath) && file.managed) {
       console.info(`[Info] Removing unsynced file ${file.filepath}`);
       fs.removeSync(file.filepath);
     }
   }
 }
 
-main()
-  .then(() => process.exit(0))
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+main().catch((err) => {
+  console.error(err);
+  process.exitCode = 1;
+});
