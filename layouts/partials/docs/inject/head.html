@@ -24,7 +24,28 @@
     <link rel="stylesheet" href="{{ "katex/katex.min.css" | relURL }}" />
     <script defer src="{{ "katex/katex.min.js" | relURL }}"></script>
     {{- with resources.Get "katex.json" | minify -}}
-      <script defer src="{{ "katex/auto-render.min.js" | relURL }}" onload="renderMathInElement(document.body, {{ .Content | safeJS }});"></script>
+    <script id="katex-options" type="application/json">
+    {{ .Content | safeHTML }}
+    </script>
+
+    <script defer src="{{ "katex/auto-render.min.js" | relURL }}"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const optionsElement = document.getElementById("katex-options");
+
+        if (!optionsElement || typeof renderMathInElement !== "function") {
+          return;
+        }
+
+        const options = JSON.parse(optionsElement.textContent);
+        renderMathInElement(document.body, options);
+      });
+    </script>
     {{- end -}}
   {{- end -}}
+{{- end -}}
+{{- if hugo.IsProduction -}}
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "1788ae26267c413580b0f78afcb134ce"}'></script><!-- End Cloudflare Web Analytics -->
+
 {{- end -}}
