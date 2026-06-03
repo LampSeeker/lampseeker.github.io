@@ -70,7 +70,7 @@
 
 {{ $recentPages := where site.RegularPages "Params.bookHidden" "ne" true }}
 {{ $recentPages = where $recentPages "Params.notion_child_databases" "==" nil }}
-{{ $recentPages = first 6 ($recentPages.ByLastmod.Reverse) }}
+{{ $recentPages = first 6 ($recentPages.ByDate.Reverse) }}
 {{ if gt (len $recentPages) 0 }}
   <div class="notion-menu-divider"></div>
   <div class="notion-menu-recent">
@@ -80,7 +80,7 @@
         <li>
           <a href="{{ .RelPermalink }}">{{ .Title }}</a>
           <div class="notion-menu-recent-date">
-            {{ partial "docs/date" (dict "Date" .Lastmod "Format" $.Site.Params.BookDateFormat) }}
+            {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
           </div>
         </li>
       {{ end }}
