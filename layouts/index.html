@@ -3,9 +3,9 @@
   {{ $root := hugo.Data.notion_root_page }}
   {{ $heroImage := (or $root.hero_image $author.image) }}
   {{ $heroIntro := (or $root.intro $author.bio) }}
-  {{ $postPages := where site.RegularPages "Section" "posts" }}
-  {{ $postPages = where $postPages "Params.notion_child_databases" "==" nil }}
-  {{ $recentPosts := first 9 ($postPages.ByDate.Reverse) }}
+  {{ $recentPosts := where site.RegularPages "Params.bookHidden" "ne" true }}
+  {{ $recentPosts = where $recentPosts "Params.notion_child_databases" "==" nil }}
+  {{ $recentPosts = first 9 ($recentPosts.ByLastmod.Reverse) }}
 
   <section class="home-hero">
     {{ with $heroImage }}
@@ -55,7 +55,7 @@
               <h3>{{ .Title }}</h3>
 
               <p class="home-post-meta">
-                {{ partial "docs/date" (dict "Date" .Date "Format" $.Site.Params.BookDateFormat) }}
+                {{ partial "docs/date" (dict "Date" .Lastmod "Format" $.Site.Params.BookDateFormat) }}
                 <span>·</span>
                 <span>{{ .WordCount }} 단어</span>
                 <span>·</span>
