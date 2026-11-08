@@ -5,7 +5,7 @@ This repository can deploy the Notion-Hugo site to Cloudflare Pages from GitHub 
 ## Cloudflare setup
 
 1. Create a Cloudflare Pages project.
-   - Recommended project name: `lampseeker-blog`
+   - Recommended project name: `lampseeker-github-io`
    - Production branch: `main`
 
 2. Create a Cloudflare API token.
@@ -20,8 +20,8 @@ This repository can deploy the Notion-Hugo site to Cloudflare Pages from GitHub 
    - `NOTION_TOKEN` should already exist for Notion sync.
 
 4. Optional GitHub repository variables.
-   - `CLOUDFLARE_PROJECT_NAME`: defaults to `lampseeker-blog`
-   - `SITE_BASE_URL`: defaults to `https://lampseeker-blog.pages.dev/`
+   - `CLOUDFLARE_PROJECT_NAME`: defaults to `lampseeker-github-io`
+   - `SITE_BASE_URL`: defaults to `https://lampseeker-github-io.pages.dev/`
 
 ## Deployment flow
 

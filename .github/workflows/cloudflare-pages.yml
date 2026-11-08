@@ -22,8 +22,8 @@ jobs:
       HUGO_VERSION: 0.161.1
       NODE_VERSION: 22
       NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-      CLOUDFLARE_PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_NAME || 'lampseeker-blog' }}
-      SITE_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://lampseeker-blog.pages.dev/' }}
+      CLOUDFLARE_PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_NAME || 'lampseeker-github-io' }}
+      SITE_BASE_URL: ${{ vars.SITE_BASE_URL || 'https://lampseeker-github-io.pages.dev/' }}
 
     steps:
       - name: Checkout
