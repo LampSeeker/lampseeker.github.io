@@ -1,0 +1,13 @@
+{{- /* Overrides hugo-book: show the Notion image caption (alt text) under block images. */ -}}
+{{- $destination := .Destination -}}
+{{- if .Page.Site.Params.BookPortableLinks -}}
+  {{- $destination = partial "docs/links/portable-image" . -}}
+{{- end -}}
+{{- $img := printf `<img src="%s" alt="%s"%s/>` ($destination | safeURL) .Text (cond (ne .Title "") (printf ` title="%s"` .Title) "") -}}
+{{- if and .IsBlock .Text -}}
+<figure class="notion-figure">{{ $img | safeHTML }}<figcaption>{{ .Text }}</figcaption></figure>
+{{- else if .IsBlock -}}
+<p>{{ $img | safeHTML }}</p>
+{{- else -}}
+{{ $img | safeHTML }}
+{{- end -}}

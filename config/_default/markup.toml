@@ -27,6 +27,7 @@ enable = true
 block = [['\[', '\]']]
 inline = [['\(', '\)']]
 [goldmark.parser]
+wrapStandAloneImageWithinParagraph = false
 autoHeadingID = true
 autoHeadingIDType = 'github'
 [goldmark.parser.attribute]

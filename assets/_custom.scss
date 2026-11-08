@@ -1949,3 +1949,12 @@ main.container {
     -webkit-line-clamp: 2;
   }
 }
+.notion-figure {
+  margin: 1rem 0;
+
+  figcaption {
+    margin-top: 0.4rem;
+    font-size: 0.875em;
+    color: var(--gray-500);
+  }
+}
