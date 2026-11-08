@@ -1,6 +1,7 @@
 import { isFullDatabase, isFullPage, iteratePaginatedAPI } from "@notionhq/client";
 import type { Client } from "@notionhq/client";
-import { createNotionClient } from "./notion-client";import dotenv from "dotenv";
+import { createNotionClient } from "./notion-client";
+import dotenv from "dotenv";
 import fs from "fs-extra";
 import { savePage } from "./render";
 import { loadConfig } from "./config";
@@ -127,8 +128,8 @@ async function collectRootPageSignals(notion: Client, rootPageId: string): Promi
 }
 
 async function main() {
-  if (process.env.NOTION_TOKEN === "")
-    throw Error("The NOTION_TOKEN environment vairable is not set.");
+  if (!process.env.NOTION_TOKEN)
+    throw Error("The NOTION_TOKEN environment variable is not set.");
   const config = await loadConfig();
   console.info("[Info] Config loaded ");
 

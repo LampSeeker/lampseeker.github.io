@@ -4,7 +4,6 @@ import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { NotionToMarkdown } from "./markdown/notion-to-md";
 import * as md from "./markdown/md";
 import YAML from "yaml";
-import { sh } from "./sh";
 import { DatabaseMount, PageMount } from "./config";
 import { getPageTitle, getCoverLinkFromPage, getFileName } from "./helpers";
 import path from "path";
@@ -32,7 +31,6 @@ export async function renderPage(
     /^[ \t]+(\{\{[%<][\s\S]*?[>%]\}\})$/gm,
     "$1",
   );
-  page.properties.Name;
   const title = getPageTitle(page);
   const frontMatter: Record<string, any> = {
     title,
@@ -46,7 +44,8 @@ export async function renderPage(
   }
 
   // set featuredImage
-  const featuredImageLink = await getCoverLinkFromPage(page);  if (featuredImageLink) {
+  const featuredImageLink = await getCoverLinkFromPage(page);
+  if (featuredImageLink) {
     frontMatter.featuredImage = featuredImageLink;
     // Blowfish reads .Params.featureimage (lowercase) for hero/card images.
     frontMatter.featureimage = featuredImageLink;
@@ -211,7 +210,6 @@ export async function savePage(
 
   const { title, pageString, childDatabases } = await renderPage(page, notion, mount);
   const fileName = getFileName(title, page.id);
-  await sh(`hugo new "${mount.target_folder}/${fileName}"`, false);
-  fs.writeFileSync(`content/${mount.target_folder}/${fileName}`, pageString);
+  fs.outputFileSync(path.join("content", mount.target_folder, fileName), pageString);
   return { childDatabases };
 }
