@@ -9,7 +9,20 @@ import { getPageTitle, getCoverLinkFromPage, getFileName } from "./helpers";
 import path from "path";
 import { getContentFile } from "./file";
 
-const NOTION_HUGO_RENDER_VERSION = "2026-05-31-escape-inline-html-v1";
+const NOTION_HUGO_RENDER_VERSION = "2026-11-09-reserved-frontmatter-keys-v1";
+
+// Hugo reads these front matter keys case-insensitively and uses them to place
+// or build the page (e.g. a Notion "URL" property would become the page URL).
+// Notion properties with these names are stored under a "notion_" prefix.
+const HUGO_RESERVED_KEYS = new Set([
+  "aliases", "build", "cascade", "headless", "kind", "layout", "markup",
+  "outputs", "params", "path", "resources", "sitemap", "slug", "type", "url",
+]);
+
+function toFrontMatterKey(property: string): string {
+  const lower = property.toLowerCase();
+  return HUGO_RESERVED_KEYS.has(lower) ? `notion_${lower}` : property;
+}
 
 export async function renderPage(
   page: PageObjectResponse,
@@ -71,61 +84,62 @@ export async function renderPage(
 
   // map page properties to front matter
   for (const [property, propertyValue] of Object.entries(page.properties)) {
+    const key = toFrontMatterKey(property);
     switch (propertyValue.type) {
       case "checkbox":
-        frontMatter[property] = propertyValue.checkbox;
+        frontMatter[key] = propertyValue.checkbox;
         break;
 
       case "select":
         if (propertyValue.select) {
-          frontMatter[property] = propertyValue.select.name;
+          frontMatter[key] = propertyValue.select.name;
         }
         break;
 
       case "multi_select":
-        frontMatter[property] = propertyValue.multi_select.map(
+        frontMatter[key] = propertyValue.multi_select.map(
           (select) => select.name,
         );
         break;
 
       case "email":
         if (propertyValue.email) {
-          frontMatter[property] = propertyValue.email;
+          frontMatter[key] = propertyValue.email;
         }
         break;
 
       case "url":
         if (propertyValue.url) {
-          frontMatter[property] = propertyValue.url;
+          frontMatter[key] = propertyValue.url;
         }
         break;
 
       case "date":
         if (propertyValue.date) {
-          frontMatter[property] = propertyValue.date.start;
+          frontMatter[key] = propertyValue.date.start;
         }
         break;
 
       case "number":
         if (propertyValue.number !== null) {
-          frontMatter[property] = propertyValue.number;
+          frontMatter[key] = propertyValue.number;
         }
         break;
 
       case "phone_number":
         if (propertyValue.phone_number) {
-          frontMatter[property] = propertyValue.phone_number;
+          frontMatter[key] = propertyValue.phone_number;
         }
         break;
 
       case "status":
         if (propertyValue.status) {
-          frontMatter[property] = propertyValue.status.name;
+          frontMatter[key] = propertyValue.status.name;
         }
         break;
 
       case "people":
-        frontMatter[property] = propertyValue.people
+        frontMatter[key] = propertyValue.people
           .map((person) => {
           if ("name" in person && typeof person.name === "string") {
             return person.name;
@@ -140,7 +154,7 @@ export async function renderPage(
       break;
 
       case "rich_text":
-        frontMatter[property] = propertyValue.rich_text
+        frontMatter[key] = propertyValue.rich_text
           .map((text) => text.plain_text)
           .join("");
         break;
