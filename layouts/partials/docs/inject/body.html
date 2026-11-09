@@ -12,7 +12,7 @@
       {{- $topTitle = . -}}
     {{- end -}}
     <div class="book-top-page-name" title="{{ $topTitle }}">
-      <span>{{ $topTitle }}</span>
+      <a class="book-top-home" href="{{ "/" | relURL }}"><span>{{ $topTitle }}</span></a>
     </div>
     <nav class="book-top-links" aria-label="Primary">
       <a href="{{ $aboutURL }}">About</a>
