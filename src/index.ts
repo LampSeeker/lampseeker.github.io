@@ -295,7 +295,9 @@ async function main() {
     const relativePath = path.relative("content", file.filepath).split(path.sep).join("/");
     if (!syncedContentPaths.has(relativePath) && file.managed) {
       console.info(`[Info] Removing unsynced file ${file.filepath}`);
-      fs.removeSync(file.filepath);
+      // unlinkSync, not removeSync: fs.rmSync (used by removeSync) crashes the
+      // process on Windows for non-ASCII paths in some Node versions (e.g. 24.4).
+      fs.unlinkSync(file.filepath);
     }
   }
 }
