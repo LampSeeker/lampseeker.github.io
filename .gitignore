@@ -18,11 +18,8 @@ resources/
 .hugo-server*.err
 
 # Notion sync generated content/assets
-content/posts/**/*.md
-content/projects/**/*.md
-content/About-*.md
+# Every synced page is a .md under content/; hand-written section files are _index.md.
+content/**/*.md
+!content/**/_index.md
 static/notion-assets/**
 data/notion_root_databases.json
-!content/posts/_index.md
-!content/projects/_index.md
-!content/projects/ark-raiders-rl/_index.md

@@ -72,6 +72,18 @@ export async function downloadAsset(
   return publicPath;
 }
 
+export function slugifyPathSegment(title: string): string {
+  const slug = title
+    .trim()
+    .toLowerCase()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return slug || "untitled";
+}
+
 export function getFileName(title: string, page_id: string): string {
   const safeTitle = title
     .trim()

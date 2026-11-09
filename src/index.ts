@@ -6,7 +6,13 @@ import fs from "fs-extra";
 import { savePage } from "./render";
 import { loadConfig } from "./config";
 import { getAllContentFiles } from "./file";
-import { downloadAsset, getCoverLink, getFileName, getPageTitle } from "./helpers";
+import {
+  downloadAsset,
+  getCoverLink,
+  getFileName,
+  getPageTitle,
+  slugifyPathSegment,
+} from "./helpers";
 import path from "path";
 
 dotenv.config();
@@ -18,18 +24,6 @@ type MountedDatabaseMeta = {
   target_folder: string;
   parent_page_id: string | null;
 };
-
-function slugifyPathSegment(title: string): string {
-  const slug = title
-    .trim()
-    .toLowerCase()
-    .replace(/[\\/:*?"<>|]/g, "-")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  return slug || "untitled";
-}
 
 function bumpCount(counter: Map<string, number>, id: string | null) {
   if (!id) return;
