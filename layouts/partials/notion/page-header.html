@@ -1,4 +1,8 @@
 {{- $cover := or .Params.featuredImage .Params.featureimage -}}
+{{- $statusColor := "green" -}}
+{{- with index .Params.NOTION_METADATA.properties "status" -}}
+  {{- with .status -}}{{ $statusColor = .color }}{{- end -}}
+{{- end -}}
 {{- with $cover -}}
 <div class="notion-page-cover">
   <img src="{{ . | relURL }}" alt="" loading="eager" />
@@ -19,7 +23,7 @@
     {{- with .Params.status -}}
     <div>
       <dt>status</dt>
-      <dd><span class="notion-page-pill notion-page-pill-green">{{ . }}</span></dd>
+      <dd><span class="notion-page-pill notion-page-pill-{{ $statusColor }}">{{ . }}</span></dd>
     </div>
     {{- end -}}
 
@@ -27,8 +31,15 @@
     <div>
       <dt>tags</dt>
       <dd>
-        {{- range . -}}
-          <span class="notion-page-pill notion-page-pill-yellow">{{ . }}</span>
+        {{- range $.GetTerms "tags" -}}
+          {{- $term := . -}}
+          {{- $color := "default" -}}
+          {{- with index $.Params.NOTION_METADATA.properties "tags" -}}
+            {{- range .multi_select -}}
+              {{- if eq (lower .name) (lower $term.LinkTitle) }}{{ $color = .color }}{{ end -}}
+            {{- end -}}
+          {{- end -}}
+          <a class="notion-page-pill notion-page-pill-{{ $color }}" href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
         {{- end -}}
       </dd>
     </div>

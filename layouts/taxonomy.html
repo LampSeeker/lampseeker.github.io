@@ -1,0 +1,23 @@
+{{ define "main" }}
+  <article class="notion-page notion-taxonomy">
+    <header class="notion-page-header notion-page-header-no-cover">
+      <h1>{{ .Title }}</h1>
+    </header>
+    <div class="notion-page-body notion-taxonomy-tags">
+      {{ range .Data.Terms.Alphabetical }}
+        {{- $term := . -}}
+        {{- $color := "default" -}}
+        {{- with index .Pages 0 -}}
+          {{- with index .Params.NOTION_METADATA.properties "tags" -}}
+            {{- range .multi_select -}}
+              {{- if eq (lower .name) (lower $term.Page.LinkTitle) }}{{ $color = .color }}{{ end -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+        <a class="notion-page-pill notion-page-pill-{{ $color }}" href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }} <small>{{ len .Pages }}</small></a>
+      {{ end }}
+    </div>
+  </article>
+{{ end }}
+
+{{ define "toc-container" }}{{ end }}
