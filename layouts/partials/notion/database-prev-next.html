@@ -1,0 +1,36 @@
+{{- with .Params.notion_parent_database_id -}}
+  {{- $databaseID := . -}}
+  {{- $current := $ -}}
+  {{- $pages := where site.RegularPages "Params.notion_parent_database_id" $databaseID -}}
+  {{- $pages = where $pages "Params.notion_child_databases" "==" nil -}}
+  {{- $older := false -}}
+  {{- $newer := false -}}
+  {{- $found := false -}}
+  {{- range $pages.ByDate -}}
+    {{- if $found -}}
+      {{- if not $newer }}{{ $newer = . }}{{ end -}}
+    {{- else if eq . $current -}}
+      {{- $found = true -}}
+    {{- else -}}
+      {{- $older = . -}}
+    {{- end -}}
+  {{- end -}}
+  <div class="flex flex-wrap justify-between">
+    <div>
+      {{ with $older }}
+        <a href="{{ .RelPermalink }}" class="flex align-center">
+          <img src="{{ partial "docs/icon" "backward" }}" class="book-icon" alt="{{ partial "docs/text/i18n" "Backward" }}" />
+          <span>{{ partial "docs/title" . }}</span>
+        </a>
+      {{ end }}
+    </div>
+    <div>
+      {{ with $newer }}
+        <a href="{{ .RelPermalink }}" class="flex align-center">
+          <span>{{ partial "docs/title" . }}</span>
+          <img src="{{ partial "docs/icon" "forward" }}" class="book-icon" alt="{{ partial "docs/text/i18n" "Forward" }}" />
+        </a>
+      {{ end }}
+    </div>
+  </div>
+{{- end -}}
