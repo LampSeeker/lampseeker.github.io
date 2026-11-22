@@ -9,7 +9,7 @@ import { getPageTitle, getCoverLinkFromPage, getFileName } from "./helpers";
 import path from "path";
 import { getContentFile } from "./file";
 
-const NOTION_HUGO_RENDER_VERSION = "2026-11-09-reserved-frontmatter-keys-v1";
+const NOTION_HUGO_RENDER_VERSION = "2026-11-22-youtube-video-v1";
 
 // Hugo reads these front matter keys case-insensitively and uses them to place
 // or build the page (e.g. a Notion "URL" property would become the page URL).

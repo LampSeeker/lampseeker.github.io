@@ -311,13 +311,25 @@ export async function richText(
 }
 
 export const videoFromUrl = (url: string) => {
-  if (url.startsWith("https://www.youtube.com/")) {
-    /*
-      YouTube video links that include embed or watch.
-      E.g. https://www.youtube.com/watch?v=[id], https://www.youtube.com/embed/[id]
-    */
-    // get last 11 characters of the url as the video id
-    const videoId = url.slice(-11);
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return htmlVideo(url);
+  }
+  let videoId: string | null = null;
+  if (["https:", "http:"].includes(parsed.protocol)) {
+    if (parsed.hostname === "youtu.be") {
+      videoId = parsed.pathname.slice(1);
+    } else if (
+      ["youtube.com", "www.youtube.com", "m.youtube.com"].includes(parsed.hostname)
+    ) {
+      videoId = parsed.pathname === "/watch"
+        ? parsed.searchParams.get("v")
+        : parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/]+)\/?$/)?.[1] ?? null;
+    }
+  }
+  if (videoId && /^[\w-]{11}$/.test(videoId)) {
     return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
   }
   return htmlVideo(url);
