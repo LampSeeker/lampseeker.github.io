@@ -2,9 +2,8 @@ import { Client, isFullPage } from "@notionhq/client";
 import {
   GetBlockResponse,
   ListBlockChildrenResponse,
-  PageObjectResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import { plainText } from "./md";
+import { getFileName, getPageTitle } from "../helpers";
 
 export const getBlockChildren = async (
   notionClient: Client,
@@ -38,25 +37,6 @@ export const getBlockChildren = async (
   }
 };
 
-export function getPageTitle(page: PageObjectResponse): string {
-  const title = page.properties.Name ?? page.properties.title;
-  if (title.type === "title") {
-    return plainText(title.title);
-  }
-  throw Error(
-    `page.properties.Name has type ${title.type} instead of title. The underlying Notion API might has changed, please report an issue to the author.`
-  );
-}
-
-export function getFileName(title: any, page_id: any): string {
-  return (
-    title.replaceAll(" ", "-").replace(/--+/g, "-") +
-    "-" +
-    page_id.replaceAll("-", "") +
-    ".md"
-  );
-}
-
 export const getPageRelrefFromId = async (
   pageId: string,
   notion: Client
@@ -64,7 +44,7 @@ export const getPageRelrefFromId = async (
   title: string;
   relref: string;
 }> => {
-  const page = await notion.pages.retrieve({ page_id: pageId }); // throw if failed
+  const page = await notion.pages.retrieve({ page_id: pageId });
   if (!isFullPage(page)) {
     throw Error(
       `The pages.retrieve endpoint failed to return a full page for ${pageId}.`
@@ -72,6 +52,6 @@ export const getPageRelrefFromId = async (
   }
   const title = getPageTitle(page);
   const fileName = getFileName(title, page.id);
-  const relref = `{{% relref "${fileName}" %}}`;
+  const relref = `{{% notion-page-url path=${JSON.stringify(fileName)} url=${JSON.stringify(page.url)} %}}`;
   return { title, relref };
 };

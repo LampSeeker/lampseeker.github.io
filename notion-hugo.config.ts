@@ -9,6 +9,16 @@ const userConfig: UserConfig = {
     auto_public_property: "공개여부",
     databases: [
       {
+        database_id: "41e5b029-aea6-804e-9682-f206d3ae5374",
+        target_folder: "devlog",
+        query_filter: {
+          property: "공개여부",
+          checkbox: {
+            equals: true,
+          },
+        },
+      },
+      {
         database_id: "f695b029-aea6-82ea-a34f-016e7e6cfd45",
         target_folder: "posts",
         query_filter: {
